@@ -3,10 +3,13 @@
 
 <label>API key:<input id="key" type='text' [(ngModel)]="apikey"/></label>
 <button (click)="getConfig()">Get Config</button>
+<br>
+<form [formGroup]="websiteForm" (ngSubmit)="submitConfig()">
+  <label>Website: <input formControlName="domain"></label>
+  <label>Backend: <input formControlName="origin"></label>
+  <button type="submit">Configure</button>
+</form> 
 
-<label>Site</label>
 
-
-<label>Backend</label>
 
 <router-outlet />
