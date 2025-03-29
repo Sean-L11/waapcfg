@@ -14,7 +14,7 @@ import { ApiService } from './api.service';
 })
 export class AppComponent implements OnInit {
   title = 'cfg5';
-  service = 'https://v5demo.app.reblaze.io';
+  service = 'v5demo.app.reblaze.io';
   apikey = 'L7rOxY78SK2-XpL7dsGipWcCJ818DRWE6xGfjB2eiheQcjLnEHUxXfqrGil9K405';
 //  backend = inject(OriginService);
   backend = inject(ApiService);
@@ -31,6 +31,7 @@ export class AppComponent implements OnInit {
   ngOnInit() {
 //	this.apiService: new ApiService();
 	console.log('test');
+	this.apiService.setAuth(this.service, this.apikey);
 	this.apiService.getData().subscribe({
 	  next:(response) => {
 		  this.message = response;
