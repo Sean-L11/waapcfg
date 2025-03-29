@@ -1,6 +1,7 @@
 <h1>{{ title }}</h1>
-<p>Welcome...</p>
-
+<p>Welcome... {{ service }}</p>
+<p>{{ message }}</p>
+<label>Service:<input id="service" type='text' [(ngModel)]="service"></label>
 <label>API key:<input id="key" type='text' [(ngModel)]="apikey"/></label>
 <button (click)="getConfig()">Get Config</button>
 <br>
