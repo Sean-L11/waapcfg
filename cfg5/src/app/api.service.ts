@@ -6,9 +6,14 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class ApiService {
-  private rootURI = '';
+  server = '45.154.205.148';
+  port = '8443';
+  protocol = 'http';
+  private rootURI = this.protocol+'://'+this.server+':'+this.port;
   private targetURI =  '';
-  private getURI = 'http://45.154.205.148:8443/api/v4.0/conf/prod/backend-services';
+  private originURI = '';
+  private sgURI = ''
+  private getURI = this.rootURI+'/api/v4.0/conf/prod/backend-services';
   // need to use local URL - use nginx to proxy to xyz.app.reblaze.io
   private headers = new HttpHeaders();
 
@@ -33,7 +38,12 @@ export class ApiService {
 
   postOrigin(payload: any): Observable<any> {
 	
-	return this.http.post(this.targetURI, payload, { 'headers': this.headers});
+	return this.http.post(this.originURI, payload, { 'headers': this.headers});
 
+  }
+
+  postServer(payload: any): Observable<any> {
+
+	return this.http.post(this.sgURI, payload, { 'headers': this.headers});
   }
 }
