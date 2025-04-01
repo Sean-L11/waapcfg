@@ -22,8 +22,8 @@ export class AppComponent {
   message: any;
 //  apiService: ApiService;
   websiteForm = new FormGroup({
-    domain: new FormControl('example.com', [Validators.required, Validators.pattern('.*')]),
-    originIP: new FormControl('5.6.7.8', [Validators.required, Validators.pattern('.*')]),
+    domain: new FormControl('example.com', [Validators.required, Validators.pattern('.+')]),
+    originIP: new FormControl('5.6.7.8', [Validators.required, Validators.pattern('.+')]),
   })
 
   constructor(private apiService: ApiService){}
@@ -47,9 +47,21 @@ export class AppComponent {
 
   submitConfig() {
 	  // set origin
-	let ip = this.websiteForm.get('originIP').value;
+	  //
+	let ip = 'default.ip';
+	let fqdn = 'example.com';
+	if (this.websiteForm.get('originIP')){
+		ip = this.websiteForm.get('originIP')!.value+'';
+	}
+	if (this.websiteForm.get('domain')){
+		fqdn = this.websiteForm.get('domain')!.value+'';
+	}
 	const origin = new Origin(ip);
+	origin.name = fqdn+" backend";
+	origin.description = "Backend Service for "+fqdn;
+
 	this.message = origin.back_hosts[0].host;
+	console.log('origin ',origin);
 	  // copy default security policy
 	  //
 	  // change backend on new policy
