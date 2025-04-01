@@ -29,7 +29,7 @@ export class Origin implements OriginInterface {
 	http11: boolean = true;
 	least_conn: boolean = false;
 	name: string = '';
-	sticky: string = '';
+	sticky: string = 'none';
 	sticky_cookie_name = '';
 	transport_mode: string = '';
 	back_hosts: [any];
@@ -47,7 +47,7 @@ export class BackHost implements BackHostInterface {
 	http_ports: [number] = [ 80 ];
 	https_ports: [number] = [ 443 ];
 	max_fails: number = 3;
-	monitor_state: string = '';
+	monitor_state: string = '0';
 	weight: number = 1;
 	constructor(backendIP = '3.4.30.9'){
 		this.host = backendIP;
