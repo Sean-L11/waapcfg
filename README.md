@@ -1,5 +1,16 @@
 # waapcfg
 
+# API variables
+
+api.service.ts properties:
+server: use localhost to avaoid CORS (below)
+port: self explanitiry
+protocol: should be https
+
+app.component.ts user input (pre-populated?):
+service: the account api domain e.g. v5demo.app.reblaze.io
+apikey: 
+
 # CORS
 Run API requests through local proxy on path /api to avoid CORS issues
 API domain (account) will be passed in XAccount header

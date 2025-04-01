@@ -1,9 +1,9 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import {FormGroup, FormControl} from '@angular/forms';
 import {ReactiveFormsModule, Validators} from '@angular/forms';
-//import { OriginService } from './origin.service';
+import { Origin, BackHost } from './origin';
 import { ApiService } from './api.service';
 
 @Component({
@@ -12,30 +12,31 @@ import { ApiService } from './api.service';
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
-export class AppComponent implements OnInit {
+export class AppComponent {
   title = 'cfg5';
   service = 'v5demo.app.reblaze.io';
   apikey = 'L7rOxY78SK2-XpL7dsGipWcCJ818DRWE6xGfjB2eiheQcjLnEHUxXfqrGil9K405';
 //  backend = inject(OriginService);
   backend = inject(ApiService);
+
   message: any;
 //  apiService: ApiService;
   websiteForm = new FormGroup({
-    domain: new FormControl('', [Validators.required, Validators.pattern('.*')]),
-    origin: new FormControl('', [Validators.required, Validators.pattern('.*')]),
+    domain: new FormControl('example.com', [Validators.required, Validators.pattern('.*')]),
+    originIP: new FormControl('5.6.7.8', [Validators.required, Validators.pattern('.*')]),
   })
 
   constructor(private apiService: ApiService){}
 
-  getConfig() {}
-  ngOnInit() {
-//	this.apiService: new ApiService();
+  getConfig() {
 	console.log('test');
-	this.apiService.setAuth(this.service, this.apikey);
-	this.apiService.getData().subscribe({
+	this.backend.setAuth(this.service, this.apikey);
+	this.backend.getData().subscribe({
 	  next:(response) => {
-		  this.message = response;
-		  console.log('Fetched ',this.message);
+		  console.log('Fetched ',response);
+		  for (let i=0;i<response.items.length; i++){
+			this.message = this.message+" "+response.items[i].name;
+		  }
 	  },
 	  error:(err) => {
 		  console.error('Error ',err)
@@ -45,5 +46,21 @@ export class AppComponent implements OnInit {
   }
 
   submitConfig() {
+	  // set origin
+	let ip = this.websiteForm.get('originIP').value;
+	const origin = new Origin(ip);
+	this.message = origin.back_hosts[0].host;
+	  // copy default security policy
+	  //
+	  // change backend on new policy
+	  //
+	  // set server group
+	  //
+	  // apply new policy
+	  //
+	  // upload SSL cert
+	  //
+	  // apply cert to LB - make default
+	  
   }  
 }
