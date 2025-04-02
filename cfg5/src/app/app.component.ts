@@ -30,6 +30,7 @@ export class AppComponent {
 
   getConfig() {
 	console.log('test');
+	this.message = this.backend.randomID();
 	this.backend.setAuth(this.service, this.apikey);
 	this.backend.getData().subscribe({
 	  next:(response) => {
@@ -57,11 +58,27 @@ export class AppComponent {
 		fqdn = this.websiteForm.get('domain')!.value+'';
 	}
 	const origin = new Origin(ip);
+	origin.id = this.backend.randomID();
 	origin.name = fqdn+" backend";
 	origin.description = "Backend Service for "+fqdn;
 
 	this.message = origin.back_hosts[0].host;
 	console.log('origin ',origin);
+
+	this.backend.setAuth(this.service, this.apikey);
+
+	this.backend.postOrigin(origin.id, origin).subscribe({
+	  next:(response) => {
+		  console.log('Response ',response);
+		  for (let i=0;i<response.items.length; i++){
+			this.message = this.message+" "+response.items[i].name;
+		  }
+	  },
+	  error:(err) => {
+		  console.error('Error ',err)
+
+	  }
+	});
 	  // copy default security policy
 	  //
 	  // change backend on new policy

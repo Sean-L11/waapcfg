@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { v4 as uuidv4 } from 'uuid';
 
 @Injectable({
   providedIn: 'root'
@@ -11,7 +12,7 @@ export class ApiService {
   protocol = 'http';
   private rootURI = this.protocol+'://'+this.server+':'+this.port;
   private targetURI =  '';
-  private originURI = '';
+  private originURI = this.rootURI+'/api/v4.0/conf/prod/backend-services';
   private sgURI = ''
   private getURI = this.rootURI+'/api/v4.0/conf/prod/backend-services';
   // need to use local URL - use nginx to proxy to xyz.app.reblaze.io
@@ -20,6 +21,12 @@ export class ApiService {
   constructor(private http: HttpClient) { 
 	
 	this.addHeader('accept', 'application/json');
+  }
+  
+  randomID(){
+	let myuuid = uuidv4();
+	myuuid = myuuid.replace(/-/gi, '').substr(0,12);
+	return myuuid;
   }
 
   setAuth(site = '', token = '') {
@@ -36,9 +43,9 @@ export class ApiService {
 	return this.http.get(this.getURI, { headers : this.headers });
   }
 
-  postOrigin(payload: any): Observable<any> {
+  postOrigin(id: string, payload: any): Observable<any> {
 	
-	return this.http.post(this.originURI, payload, { 'headers': this.headers});
+	return this.http.post(this.originURI+'/'+id, payload, { 'headers': this.headers});
 
   }
 
