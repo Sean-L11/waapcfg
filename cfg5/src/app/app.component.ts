@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import {FormGroup, FormControl} from '@angular/forms';
 import {ReactiveFormsModule, Validators} from '@angular/forms';
 import { Origin, BackHost } from './origin';
+import { SecurityPolicy, PathMap } from './securitypolicy';
 import { ApiService } from './api.service';
 
 @Component({
@@ -18,7 +19,7 @@ export class AppComponent {
   apikey = 'L7rOxY78SK2-XpL7dsGipWcCJ818DRWE6xGfjB2eiheQcjLnEHUxXfqrGil9K405';
 //  backend = inject(OriginService);
   backend = inject(ApiService);
-
+  private securitypolicy: SecurityPolicy = new SecurityPolicy();
   message: any;
 //  apiService: ApiService;
   websiteForm = new FormGroup({
@@ -26,18 +27,15 @@ export class AppComponent {
     originIP: new FormControl('5.6.7.8', [Validators.required, Validators.pattern('.+')]),
   })
 
-  constructor(private apiService: ApiService){}
+//  constructor(private apiService: ApiService){}
+  contructor() {}
 
   getConfig() {
-	console.log('test');
-	this.message = this.backend.randomID();
 	this.backend.setAuth(this.service, this.apikey);
 	this.backend.getData().subscribe({
 	  next:(response) => {
 		  console.log('Fetched ',response);
-		  for (let i=0;i<response.items.length; i++){
-			this.message = this.message+" "+response.items[i].name;
-		  }
+		  this.securitypolicy = response;
 	  },
 	  error:(err) => {
 		  console.error('Error ',err)
@@ -67,22 +65,32 @@ export class AppComponent {
 
 	this.backend.setAuth(this.service, this.apikey);
 
-	this.backend.postOrigin(origin.id, origin).subscribe({
+	this.backend.postOrigin(origin).subscribe({
 	  next:(response) => {
 		  console.log('Response ',response);
-		  for (let i=0;i<response.items.length; i++){
-			this.message = this.message+" "+response.items[i].name;
-		  }
 	  },
 	  error:(err) => {
 		  console.error('Error ',err)
-
 	  }
 	});
-	  // copy default security policy
-	  //
+
+
 	  // change backend on new policy
-	  //
+	this.securitypolicy.id = this.backend.randomID();
+	for (let i = 0; i < this.securitypolicy.map.length; i++){
+		this.securitypolicy.map[i].backend_service = origin.id;
+	}
+
+	this.backend.postSecurityPolicy(this.securitypolicy).subscribe({
+	  next:(response) => {
+		console.log('response ',response);
+	  },
+	  error:(err) => {
+		console.log('error ',err);
+	  }
+	});
+
+
 	  // set server group
 	  //
 	  // apply new policy
