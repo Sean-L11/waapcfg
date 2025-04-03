@@ -26,7 +26,7 @@ export class SecurityPolicy implements SecurityPolicyInterface {
 	tags: [] = [];
 	map: any;
 	
-	constructor(backend: string){
+	constructor(backend: string = '1.2.3.4'){
 		let root = new PathMap('__root_entry__', '^/(\\W.*)?$', backend);
 		let site = new PathMap('__site_level__', '__site_level__', backend);
 		let dflt = new PathMap('__default_entry__', '/', backend);

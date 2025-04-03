@@ -10,11 +10,12 @@ export class ApiService {
   server = '45.154.205.148';
   port = '8443';
   protocol = 'http';
-  private rootURI = this.protocol+'://'+this.server+':'+this.port;
+  private rootURI = this.protocol+'://'+this.server+':'+this.port+'/api/v4.0/conf/prod/';
   private targetURI =  '';
-  private originURI = this.rootURI+'/api/v4.0/conf/prod/backend-services';
-  private sgURI = ''
-  private getURI = this.rootURI+'/api/v4.0/conf/prod/backend-services';
+  private originURI = this.rootURI+'backend-services';
+  private sgURI = this.rootURI+'server-groups';
+  private spURI = this.rootURI+'security-policies';
+  private getURI = this.rootURI+'security-policies/__default__';
   // need to use local URL - use nginx to proxy to xyz.app.reblaze.io
   private headers = new HttpHeaders();
 
@@ -39,18 +40,23 @@ export class ApiService {
   }
 
   getData(): Observable<any>{
-	console.log('headers ',this.headers);
 	return this.http.get(this.getURI, { headers : this.headers });
   }
 
-  postOrigin(id: string, payload: any): Observable<any> {
-	
+  postOrigin(payload: any): Observable<any> {
+	let id = payload.id;	
 	return this.http.post(this.originURI+'/'+id, payload, { 'headers': this.headers});
 
   }
 
   postServer(payload: any): Observable<any> {
-
-	return this.http.post(this.sgURI, payload, { 'headers': this.headers});
+	let id = payload.id;
+	return this.http.post(this.sgURI+'/'+id, payload, { 'headers': this.headers});
   }
+
+  postSecurityPolicy(payload: any): Observable<any> {
+        let id = payload.id;
+	return this.http.post(this.spURI+'/'+id, payload, { 'headers': this.headers});
+  }
+
 }
