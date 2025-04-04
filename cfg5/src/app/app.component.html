@@ -1,14 +1,16 @@
 <h1>{{ title }}</h1>
 <p>Welcome... {{ service }}</p>
-<p>{{ message }}</p>
+<p>Instructions...</p>
 <label>Service:<input id="service" type='text' [(ngModel)]="service"></label>
 <br><label>API key:<input id="key" type='text' [(ngModel)]="apikey"/></label>
-<button (click)="getConfig()">Get Config</button>
+<button (click)="getConfig()">Authenticate</button>
 <br>
+<p>{{ message }}</p>
 <form [formGroup]="websiteForm" (ngSubmit)="submitConfig()">
-  <label>Website: <input formControlName="domain"></label>
-  <label>Backend: <input formControlName="originIP"></label>
-  <button type="submit">Configure</button>
+	<label>Website: <input formControlName="domain"></label><br>
+	<label>Backend: <input formControlName="originIP"></label><br>
+	<label>Certificate: <input type="file" forControlName="cert" (cahnge)="onCertUpload($event)"></label><br>
+	<button type="submit">Configure</button>
 </form> 
 
 

@@ -22,14 +22,20 @@ export class AppComponent {
   backend = inject(ApiService);
   private securitypolicy: SecurityPolicy = new SecurityPolicy();
   message: any;
+  certificate: any = null;
 //  apiService: ApiService;
   websiteForm = new FormGroup({
     domain: new FormControl('example.com', [Validators.required, Validators.pattern('.+')]),
     originIP: new FormControl('5.6.7.8', [Validators.required, Validators.pattern('.+')]),
+    cert: new FormControl(null),
   })
 
 //  constructor(private apiService: ApiService){}
   contructor() {}
+
+  onCertUpload(event: Event){
+  
+  }
 
   getConfig() {
 	this.backend.setAuth(this.service, this.apikey);
@@ -37,9 +43,11 @@ export class AppComponent {
 	  next:(response) => {
 		  console.log('Fetched ',response);
 		  this.securitypolicy = response;
+		  this.message = "Authentication Success...";
 	  },
 	  error:(err) => {
 		  console.error('Error ',err)
+		  this.message = "Authentication Failed...";
 
 	  }
 	});
@@ -110,6 +118,8 @@ export class AppComponent {
 	  // upload SSL cert
 	  //
 	  // apply cert to LB - make default
+	//
+	// push update
 	  
   }  
 }
