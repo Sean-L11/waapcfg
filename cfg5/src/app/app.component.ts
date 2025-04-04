@@ -5,6 +5,7 @@ import {FormGroup, FormControl} from '@angular/forms';
 import {ReactiveFormsModule, Validators} from '@angular/forms';
 import { Origin, BackHost } from './origin';
 import { SecurityPolicy, PathMap } from './securitypolicy';
+import {ServerGroup} from './servergroup';
 import { ApiService } from './api.service';
 
 @Component({
@@ -46,7 +47,6 @@ export class AppComponent {
 
   submitConfig() {
 	  // set origin
-	  //
 	let ip = 'default.ip';
 	let fqdn = 'example.com';
 	if (this.websiteForm.get('originIP')){
@@ -74,13 +74,15 @@ export class AppComponent {
 	  }
 	});
 
-
 	  // change backend on new policy
 	this.securitypolicy.id = this.backend.randomID();
 	for (let i = 0; i < this.securitypolicy.map.length; i++){
-		this.securitypolicy.map[i].backend_service = origin.id;
+		if (this.securitypolicy.map[i].id != '__site_level__') {
+			this.securitypolicy.map[i].backend_service = origin.id;
+		}
 	}
-
+	this.securitypolicy.name = fqdn+" Security Policy";
+	console.log('security policy ',this.securitypolicy);
 	this.backend.postSecurityPolicy(this.securitypolicy).subscribe({
 	  next:(response) => {
 		console.log('response ',response);
@@ -90,11 +92,21 @@ export class AppComponent {
 	  }
 	});
 
-
 	  // set server group
-	  //
+	var servergroup = new ServerGroup(fqdn);
+	servergroup.id = this.backend.randomID();
 	  // apply new policy
-	  //
+	servergroup.security_policy = this.securitypolicy.id;
+	  // remove default site level
+	console.log("server group ",servergroup);
+	this.backend.postServer(servergroup).subscribe({
+	  next:(response) => {
+		console.log('response ',response);
+	  },
+	  error:(err) => {
+		console.log('error ',err);
+	  }
+	});
 	  // upload SSL cert
 	  //
 	  // apply cert to LB - make default

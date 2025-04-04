@@ -1,5 +1,6 @@
 export interface SecurityPolicyInterface {
 	id: string;
+	description: string;
 	name: string;
 	session: [any];
 	tags: [];
@@ -8,6 +9,7 @@ export interface SecurityPolicyInterface {
 
 export interface PathMapInterface {
 	id: string;
+	description: string;
 	name: string;
 	match: string;
 	acl_profile: string;
@@ -16,11 +18,12 @@ export interface PathMapInterface {
 	content_filter_profile_active: boolean;
 	backend_service: string;
 	edge_functions: [];
-	rate_limit_functions: [];
+	rate_limit_rules: [];
 }
 
 export class SecurityPolicy implements SecurityPolicyInterface {
 	id: string = '';
+	description: string = '';
 	name: string = '';
 	session: [any] = [{"attr" : "ip"}]
 	tags: [] = [];
@@ -28,7 +31,7 @@ export class SecurityPolicy implements SecurityPolicyInterface {
 	
 	constructor(backend: string = '1.2.3.4'){
 		let root = new PathMap('__root_entry__', '^/(\\W.*)?$', backend);
-		let site = new PathMap('__site_level__', '__site_level__', backend);
+		let site = new PathMap('__site_level__', '__site_level__', '__default__');
 		let dflt = new PathMap('__default_entry__', '/', backend);
 	
 		this.map = [root, site, dflt];	
@@ -38,6 +41,7 @@ export class SecurityPolicy implements SecurityPolicyInterface {
 
 export class PathMap implements PathMapInterface {
 	id: string;
+	description: string = '';
 	name: string;
 	match: string;
 	acl_profile: string = '__acl_default__';
@@ -46,12 +50,13 @@ export class PathMap implements PathMapInterface {
 	content_filter_profile_active: boolean = false;
 	backend_service: string;
 	edge_functions: [] = [];
-	rate_limit_functions: [] = [];
+	rate_limit_rules: [] = [];
 
 	constructor(id: string, path: string, backend: string){
 		this.id = id;
 		this.name = path.replace(/__/gi, '');
 		this.match = path;
+		this.description = this.name;
 		this.backend_service = backend;
 	}
 }
