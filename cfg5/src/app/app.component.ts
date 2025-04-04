@@ -3,9 +3,9 @@ import { RouterOutlet } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import {FormGroup, FormControl} from '@angular/forms';
 import {ReactiveFormsModule, Validators} from '@angular/forms';
-import { Origin, BackHost } from './origin';
-import { SecurityPolicy, PathMap } from './securitypolicy';
-import {ServerGroup} from './servergroup';
+import { Origin, BackHost } from '../lib/origin';
+import { SecurityPolicy, PathMap } from '../lib/securitypolicy';
+import {ServerGroup} from '../lib/servergroup';
 import { ApiService } from './api.service';
 
 @Component({
@@ -34,8 +34,8 @@ export class AppComponent {
   contructor() {}
 
   onCertUpload(event: Event){
-	const file = (event.target as HTMLInputElement).files[0];
-	console.log('file upload ', file);	
+//	const file = (event.target as HTMLInputElement).files[0];
+//	console.log('file upload ', file);	
   }
 
   getConfig() {
