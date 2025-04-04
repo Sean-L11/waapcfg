@@ -34,7 +34,8 @@ export class AppComponent {
   contructor() {}
 
   onCertUpload(event: Event){
-  
+	const file = (event.target as HTMLInputElement).files[0];
+	console.log('file upload ', file);	
   }
 
   getConfig() {
