@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import {FormGroup, FormControl} from '@angular/forms';
+import {FormGroup, FormBuilder, FormControl} from '@angular/forms';
 import {ReactiveFormsModule, Validators} from '@angular/forms';
 import { Origin, BackHost } from '../lib/origin';
 import { SecurityPolicy, PathMap } from '../lib/securitypolicy';
@@ -27,15 +27,20 @@ export class AppComponent {
   websiteForm = new FormGroup({
     domain: new FormControl('example.com', [Validators.required, Validators.pattern('.+')]),
     originIP: new FormControl('5.6.7.8', [Validators.required, Validators.pattern('.+')]),
-    cert: new FormControl(null),
+    cert: new FormControl('LE',[Validators.required]),
   })
 
-//  constructor(private apiService: ApiService){}
-  contructor() {}
+  contructor(fb: FormBuilder) {
+  }
+
+  ngOnInit() {
+
+	this.websiteForm.disable();
+  }
 
   onCertUpload(event: Event){
-//	const file = (event.target as HTMLInputElement).files[0];
-//	console.log('file upload ', file);	
+	const file = (event.target as HTMLInputElement).files![0];
+	console.log('file upload ', file);	
   }
 
   getConfig() {
@@ -45,11 +50,12 @@ export class AppComponent {
 		  console.log('Fetched ',response);
 		  this.securitypolicy = response;
 		  this.message = "Authentication Success...";
+		  this.websiteForm.enable();
 	  },
 	  error:(err) => {
 		  console.error('Error ',err)
 		  this.message = "Authentication Failed...";
-
+		  this.websiteForm.disable();
 	  }
 	});
   }
@@ -121,6 +127,16 @@ export class AppComponent {
 	  // apply cert to LB - make default
 	//
 	// push update
+	//
+	
+	this.backend.commit(this.service).subscribe({
+	  next:(response) => {
+		console.log('response ', response);
+	  },
+	  error:(err) => {
+		console.log('error ',err);
+	  }	  
+	});
 	  
   }  
 }
