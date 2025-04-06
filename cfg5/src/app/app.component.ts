@@ -16,7 +16,7 @@ import { ApiService } from './api.service';
 })
 export class AppComponent {
   title = 'cfg5';
-  service = 'v5demo.app.reblaze.io';
+  service = 'v5demo';
   apikey = 'L7rOxY78SK2-XpL7dsGipWcCJ818DRWE6xGfjB2eiheQcjLnEHUxXfqrGil9K405';
 //  backend = inject(OriginService);
   backend = inject(ApiService);
