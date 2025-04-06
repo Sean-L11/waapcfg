@@ -9,8 +9,9 @@
 <form [formGroup]="websiteForm" (ngSubmit)="submitConfig()">
 	<label>Website: <input formControlName="domain"></label><br>
 	<label>Backend: <input formControlName="originIP"></label><br>
-	<label>Certificate: <input type="file" forControlName="cert" (change)="onCertUpload($event)"></label><br>
-	<button type="submit">Configure</button>
+	<label>Enable SSL: <input type="checkbox" formControlName="cert" >
+	</label><br>
+	<button [disabled]="!websiteForm.enabled" type="submit">Configure</button>
 </form> 
 
 

@@ -16,8 +16,9 @@ export class ApiService {
   private sgURI = this.rootURI+'server-groups';
   private spURI = this.rootURI+'security-policies';
   private getURI = this.rootURI+'security-policies/__default__';
+  private pushURI = this.protocol+'://'+this.server+':'+this.port+'/api/v4.0/tools/publish/prod';
   // need to use local URL - use nginx to proxy to xyz.app.reblaze.io
-  private headers = new HttpHeaders();
+  private headers = new HttpHeaders()
 
   constructor(private http: HttpClient) { 
 	
@@ -59,4 +60,10 @@ export class ApiService {
 	return this.http.post(this.spURI+'/'+id, payload, { 'headers': this.headers});
   }
 
+  commit(account: string): Observable<any> {
+	let update: [{ name: string, url: string }];
+	update = [{ name: "prod", url: "gs://rbz-"+account+"-config/prod" }];
+	return this.http.post(this.pushURI, update, { 'headers': this.headers });
+
+  }
 }
