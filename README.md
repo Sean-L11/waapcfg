@@ -33,7 +33,8 @@ server {
 
     location /api {
 
-        set $upstream $http_xaccount; // more (any) validation needed
+        set $apiservice .app.reblaze.io;
+        set $upstream $http_xaccount$apiservice; // more (any) validation needed
         proxy_pass https://$upstream$request_uri;
         proxy_http_version 1.1;
         proxy_set_header Host $http_xaccount;
