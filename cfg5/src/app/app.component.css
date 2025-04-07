@@ -1,0 +1,32 @@
+$primary: #1c2c47;
+$secondary: #059bcf;
+$white: #fffff;
+$grey: #f0f0f0;
+
+.form__group {
+}
+
+.form__field {
+
+}
+
+.form__label {
+	font-size: 12px;
+}
+
+body {
+  font-family: arial, sans-serif; 
+  background-color: #grey;
+}
+
+img.logo {
+	display: block;
+	margin: auto;
+	width: 100px;
+}
+p.welcome, .instructions, .message {
+	margin-left: 20px;
+	font-family: arial;
+	font-size: 16px;
+}
+
