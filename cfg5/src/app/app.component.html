@@ -1,8 +1,22 @@
-<h1>{{ title }}</h1>
 <img class="logo" src='data:image/jpeg;base64, iVBORw0KGgoAAAANSUhEUgAAAG4AAAAkCAMAAABfRv/DAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAABIUExURQAAABsfGx0eGx0dHB0eHA5hnA9hnQ5gnA5hnQ9fnA9fnx8fHxwcHB0dGxweHBofGhwdHA5gnQ9inA9fmx0dHRweGxwdGwAAAM4T9woAAAAYdFJOU///////////////////////////////AM0TLuoAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAOXSURBVFhH3ZZtj5swEIQrJIsKgpDgQ/7/P+08s2tjJ7n0eq0qtcsd9vhlx7Nem3y7/1X7J+l2mYpSylxKNL2236Azg23ft21TKS4Rnm9Iv0on/9tFl2Cej/NYzgPWc35F+nk6AoaEMBga2rbbzermU3zHote5mPQQ6dyR/pQOElaO+0sPDBURykonKqmTxANKHkglNUlf0+EoxFgFrvabzJ0YKJoZQNegTvp4WSbPYlIRDnTES+uWB4Gg4Y2M5pJhagKyKEoRrwaXOpHyCk5JBZY56CCx4Sf0SEcEyMjlOk1BpyZRJFRlmyaaBDp18QRzKp2TTv6CzxU7E95Xgqcmb5IUWHOMut0mj73fVxWTxq/uLIs2ifSsTxAFqHQWhe3sh71BtFsjIpE8VXFWJ0lahoH11QV3Jk1wiyc4lxrMXGhIAGkrBCQP0tVrUFEdMkDZqnaAGxK8MU6EikEdjvzaplW7sk12JYhs70412nJSB5x+SFJxHNE52qDOvPp3bFKdE0+vJs5GDJsgxEVmFp9tzLcLz6GMzBVoxKjOcVMsdayUBJw7AW0ar15cNjcgCIjMzN3KDK1njhvmQR3zjJgu896Rebw9ohoNuUam3aI/zp2pOnVRLm8yc7W3VS4IJGJfBJNuG2PsoVOnv6rOpXifzh0JAYKLFcuF9kV1RY6NvCyaK6A36IICplEdvE/qVIY6zBsopF4GKH88JozGK1U8QJUP1Zn3SZ1nybFs1TE2HczKPCVGH00vqdKRmI51aerkvVPn1ITtQZ3uJsjlWotXBPFLUoL2PpraOy0ogWbUXhG4/MgGdRw4EOZbkT4tRmfeMfUgWyypAXoTvLdBXc1M3krOvDM3vkrErqNDXU93Rbaaj5pjGLXzPPN7h39/hFpm+jMUtwobI1ckX3cWmJFrBGiQ+8J1kWvvWyDdMN7E9r0zg2b3dBwl7x36WEmLATZeYjJfOmKzZ/luCZnnTuB7y0zNZXZHp6ZQx8rxS/Zd4ZR/HbwGOIaqzFyV+YgpK8F6fYDYJZ9a0iPp7mqJOzOgKhrS6Lh1Wqoywhs5l1T0Qtz1NW8W/iJqJGakSkRNfXy1PU4owpFAoXRPu1UsLuQFKQ+/xQa60UKVTpxL/ypp8rqfLqaLMe1WqaKyMs9LjHxH92h9sjh8A3ilTtfkw0f2F+h6g7mnU2hVudSpFn0P9kW60XbuOZVFv8TK21vsj9B93v5nuvv9B0m3G+8jzF0WAAAAAElFTkSuQmCC'>
      
-<p class="welcome">Welcome... {{ service }}</p>
-<p class="instructions">Instructions...</p>
+<p class="welcome">Welcome {{ service }}</p>
+<p><span class="instructions">We just need a few more peices of information to finish configuring your new WAAP service.
+<ul>
+	<li><strong>Step 1:</strong>Please login with the credentials provided below</li>
+	<li><strong>Step 2:</strong>Provide the domain name, and the address to which you want the legitimate traffic sent.</li>
+	<li><strong>Step 3:</strong>Change your DNS records to point to the selected domain to the address that will be provided.
+</ul>
+</span>
+<!--
+<div class="progress">
+<span id="authenticate" class="progress red">Authenticate</span>
+<span id="configure" class="progress red">Configure Service</span>
+<span id="policy" class="progress red">Apply Security Policy</span>
+<span id="enablessl" class="progress red">Enable SSL</span>
+</div>
+-->
+<p class="login">
 <label>Service:<input id="service" type='text' [(ngModel)]="service"></label>
 <br><label>API key:<input id="key" type='text' [(ngModel)]="apikey"/></label>
 <button (click)="getConfig()">Authenticate</button>
@@ -24,6 +38,8 @@
 </div>	
 	<button [disabled]="!websiteForm.enabled" type="submit">Configure</button>
 </form> 
-
+<span class="result">
+	<p class="dns">{{ dnsResult }}</p>
+</span>
 
 <router-outlet />

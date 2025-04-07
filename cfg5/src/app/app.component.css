@@ -1,7 +1,21 @@
-$primary: #1c2c47;
-$secondary: #059bcf;
-$white: #fffff;
-$grey: #f0f0f0;
+
+.red {
+	color: #ff0000;
+}
+
+.green {
+	color: #00ff00;
+}
+
+.progress {
+}
+
+span.progress {
+	display: inline-block;
+	width: 176px;
+	border: 2px;
+	text-align: center;
+}
 
 .form__group {
 }
@@ -16,7 +30,7 @@ $grey: #f0f0f0;
 
 body {
   font-family: arial, sans-serif; 
-  background-color: #grey;
+  background-color: #f0f0f0;
 }
 
 img.logo {

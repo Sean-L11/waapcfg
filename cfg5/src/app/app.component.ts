@@ -22,6 +22,7 @@ export class AppComponent {
   backend = inject(ApiService);
   private securitypolicy: SecurityPolicy = new SecurityPolicy();
   message: any;
+  dnsResult: any;
   certificate: any = null;
 //  apiService: ApiService;
   websiteForm = new FormGroup({
@@ -34,7 +35,6 @@ export class AppComponent {
   }
 
   ngOnInit() {
-
 	this.websiteForm.disable();
   }
 
@@ -51,6 +51,7 @@ export class AppComponent {
 		  this.securitypolicy = response;
 		  this.message = "Authentication Success...";
 		  this.websiteForm.enable();
+		  
 	  },
 	  error:(err) => {
 		  console.error('Error ',err)
@@ -61,36 +62,49 @@ export class AppComponent {
   }
 
   submitConfig() {
+
 	  // set origin
 	let ip = 'default.ip';
 	let fqdn = 'example.com';
+	let enableSSL = false;
 	if (this.websiteForm.get('originIP')){
 		ip = this.websiteForm.get('originIP')!.value+'';
 	}
 	if (this.websiteForm.get('domain')){
 		fqdn = this.websiteForm.get('domain')!.value+'';
 	}
+
+	if (this.websiteForm.get('cert')){
+		enableSSL = this.websiteForm.get('cert')!.value == "LE";
+	}
 	const origin = new Origin(ip);
 	origin.id = this.backend.randomID();
 	origin.name = fqdn+" backend";
 	origin.description = "Backend Service for "+fqdn;
 
-	this.message = origin.back_hosts[0].host;
+	// set SSL
+	if (enableSSL) {
+	
+	//
+
+	}
+
 	console.log('origin ',origin);
 
 	this.backend.setAuth(this.service, this.apikey);
 
 	this.backend.postOrigin(origin).subscribe({
 	  next:(response) => {
-		  console.log('Response ',response);
+		  console.log('origin Response ',response);
 	  },
 	  error:(err) => {
-		  console.error('Error ',err)
+		  console.error('origin Error ',err)
 	  }
 	});
 
 	  // change backend on new policy
 	this.securitypolicy.id = this.backend.randomID();
+	  // preserve default site level backend
 	for (let i = 0; i < this.securitypolicy.map.length; i++){
 		if (this.securitypolicy.map[i].id != '__site_level__') {
 			this.securitypolicy.map[i].backend_service = origin.id;
@@ -100,10 +114,10 @@ export class AppComponent {
 	console.log('security policy ',this.securitypolicy);
 	this.backend.postSecurityPolicy(this.securitypolicy).subscribe({
 	  next:(response) => {
-		console.log('response ',response);
+		console.log('policy response ',response);
 	  },
 	  error:(err) => {
-		console.log('error ',err);
+		console.log('policy error ',err);
 	  }
 	});
 
@@ -112,31 +126,45 @@ export class AppComponent {
 	servergroup.id = this.backend.randomID();
 	  // apply new policy
 	servergroup.security_policy = this.securitypolicy.id;
-	  // remove default site level
 	console.log("server group ",servergroup);
 	this.backend.postServer(servergroup).subscribe({
 	  next:(response) => {
-		console.log('response ',response);
+		console.log('server response ',response);
 	  },
 	  error:(err) => {
-		console.log('error ',err);
+		console.log('server error ',err);
 	  }
 	});
-	  // upload SSL cert
-	  //
-	  // apply cert to LB - make default
+	// upload SSL cert
+	//
+	// apply cert to LB - make default
 	//
 	// push update
-	//
 	
 	this.backend.commit(this.service).subscribe({
 	  next:(response) => {
-		console.log('response ', response);
+		console.log('commit response ', response);
 	  },
 	  error:(err) => {
-		console.log('error ',err);
+		console.log('commit error ',err);
 	  }	  
 	});
-	  
+	// display DNS info:
+	//
+	//
+	this.backend.getDNS().subscribe({
+	  next:(response) => {
+		console.log('dns response',response);
+		for (let i=0; i<response.dns_records.length; i++){
+			let r = response.dns_records[i];
+			if (r.name.substring(0,9) == 'fire-prod'){
+				this.dnsResult = "Please update "+fqdn+" dns record to point to:\n "+r.name+" ( "+r.resource_records[0]+" )";
+			}
+		}
+	  },
+	  error:(err) => {
+	  	console.log('dns error',err);
+	  }
+        });	
   }  
 }
