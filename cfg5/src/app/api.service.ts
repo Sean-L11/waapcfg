@@ -17,6 +17,8 @@ export class ApiService {
   private spURI = this.rootURI+'security-policies';
   private getURI = this.rootURI+'security-policies/__default__';
   private pushURI = this.protocol+'://'+this.server+':'+this.port+'/api/v4.0/tools/publish/prod';
+  private dnsURI = this.protocol+'://'+this.server+':'+this.port+'/api/v4.0/tools/dns-information';
+  
   // need to use local URL - use nginx to proxy to xyz.app.reblaze.io
   private headers = new HttpHeaders()
 
@@ -63,7 +65,11 @@ export class ApiService {
   commit(account: string): Observable<any> {
 	let update: [{ name: string, url: string }];
 	update = [{ name: "prod", url: "gs://rbz-"+account+"-config/prod" }];
-	return this.http.post(this.pushURI, update, { 'headers': this.headers });
+	console.log('commit ',update);
+	return this.http.put(this.pushURI, update, { 'headers': this.headers });
 
+  }
+  getDNS(): Observable<any> {
+	return this.http.get(this.dnsURI, {'headers' : this.headers });
   }
 }

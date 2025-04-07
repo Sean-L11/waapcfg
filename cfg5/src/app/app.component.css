@@ -1,0 +1,46 @@
+
+.red {
+	color: #ff0000;
+}
+
+.green {
+	color: #00ff00;
+}
+
+.progress {
+}
+
+span.progress {
+	display: inline-block;
+	width: 176px;
+	border: 2px;
+	text-align: center;
+}
+
+.form__group {
+}
+
+.form__field {
+
+}
+
+.form__label {
+	font-size: 12px;
+}
+
+body {
+  font-family: arial, sans-serif; 
+  background-color: #f0f0f0;
+}
+
+img.logo {
+	display: block;
+	margin: auto;
+	width: 100px;
+}
+p.welcome, .instructions, .message {
+	margin-left: 20px;
+	font-family: arial;
+	font-size: 16px;
+}
+
