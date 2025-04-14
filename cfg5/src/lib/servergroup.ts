@@ -26,10 +26,11 @@ export class ServerGroup implements ServerGroupInterface {
 	server_names: [string];
 	ssl_certificate: string = 'placeholder';
 	client_certificate: string = '';
-	client_certificate_mode: string = 'on';
+	client_certificate_mode: string = 'off';
 
 	constructor(fqdn = "example.com"){
 		this.name = fqdn;
+		this.description = fqdn+" server group";
 		this.server_names = [fqdn];
 	}
 }

@@ -106,6 +106,11 @@ export class AppComponent {
 	this.securitypolicy.id = this.backend.randomID();
 	  // preserve default site level backend
 	for (let i = 0; i < this.securitypolicy.map.length; i++){
+
+		//make acl & cf monitor only
+		this.securitypolicy.map[i].acl_profile_active = false;
+		this.securitypolicy.map[i].content_filter_profile_active = false;
+
 		if (this.securitypolicy.map[i].id != '__site_level__') {
 			this.securitypolicy.map[i].backend_service = origin.id;
 		}
