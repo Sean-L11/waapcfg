@@ -1,3 +1,5 @@
+import * as pkijs from 'pkijs';
+
 export interface CertificateInterface {
 	name: string;
 	cert_body: string;
@@ -41,4 +43,6 @@ export class Certificate implements CertificateInterface{
 	constructor(){}
 
 	validate(){}
+
+	import(){}
 }
