@@ -1,11 +1,11 @@
 import { Component, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import {FormGroup, FormBuilder, FormControl} from '@angular/forms';
-import {ReactiveFormsModule, Validators} from '@angular/forms';
+import { FormGroup, FormBuilder, FormControl}  from '@angular/forms';
+import { ReactiveFormsModule, Validators } from '@angular/forms';
 import { Origin, BackHost } from '../lib/origin';
 import { SecurityPolicy, PathMap } from '../lib/securitypolicy';
-import {ServerGroup} from '../lib/servergroup';
+import { ServerGroup } from '../lib/servergroup';
 import { ApiService } from './api.service';
 //import { Certificate } from '../lib/certificate';
 
@@ -19,13 +19,11 @@ export class AppComponent {
   title = 'cfg5';
   service = 'v5demo';
   apikey = 'L7rOxY78SK2-XpL7dsGipWcCJ818DRWE6xGfjB2eiheQcjLnEHUxXfqrGil9K405';
-//  backend = inject(OriginService);
   backend = inject(ApiService);
   private securitypolicy: SecurityPolicy = new SecurityPolicy();
   message: any;
   dnsResult: any;
   certificate: any = null;
-//  apiService: ApiService;
   websiteForm = new FormGroup({
     domain: new FormControl('example.com', [Validators.required, Validators.pattern('.+')]),
     originIP: new FormControl('3.4.30.9', [Validators.required, Validators.pattern('.+')]),
