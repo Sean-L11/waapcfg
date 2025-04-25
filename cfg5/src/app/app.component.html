@@ -34,8 +34,12 @@
 </div>
 <div class="form__group field">
 	<label class="form__label">Enable SSL: </label>
-	<input class="form__field" type="checkbox" formControlName="cert" >
+	<input class="form__field" type="checkbox" formControlName="lecert" >
 </div>	
+<div class="form__group field">
+	<label class="form__label">Upload SSL: </label>
+	<input class="form__field" formControlName="cert" type="file" (change)="onCertUpload($event)">
+</div>
 	<button [disabled]="!websiteForm.enabled" type="submit">Configure</button>
 </form> 
 <span class="result">

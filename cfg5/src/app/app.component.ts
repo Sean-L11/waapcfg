@@ -7,7 +7,7 @@ import { Origin, BackHost } from '../lib/origin';
 import { SecurityPolicy, PathMap } from '../lib/securitypolicy';
 import { ServerGroup } from '../lib/servergroup';
 import { ApiService } from './api.service';
-//import { Certificate } from '../lib/certificate';
+import { Certificate } from '../lib/certificate';
 
 @Component({
   selector: 'app-root',
@@ -27,7 +27,8 @@ export class AppComponent {
   websiteForm = new FormGroup({
     domain: new FormControl('example.com', [Validators.required, Validators.pattern('.+')]),
     originIP: new FormControl('3.4.30.9', [Validators.required, Validators.pattern('.+')]),
-    cert: new FormControl('LE',[Validators.required]),
+    lecert: new FormControl('LE',[Validators.required]),
+    cert: new FormControl(''),
   })
 
   contructor(fb: FormBuilder) {
