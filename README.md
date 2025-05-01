@@ -1,8 +1,10 @@
 # waapcfg
 
 # Installing
-## Install Angular TS
+## Install Angular and referenced librabries
 npm install -g @angular/cli
+npm install -g uuid
+npm install @peculiar/x509
 
 ## Create the Workspace
 ng new cfg5
