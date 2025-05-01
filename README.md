@@ -1,5 +1,15 @@
 # waapcfg
 
+# Installing
+## Install Angular TS
+npm install -g @angular/cli
+
+## Create the Workspace
+ng new cfg5
+
+## Fetch this epo
+git clone git@github.com:Sean-L11/waapcfg.git
+
 # API variables
 
 api.service.ts properties:
