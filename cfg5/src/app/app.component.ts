@@ -23,7 +23,7 @@ export class AppComponent {
   private securitypolicy: SecurityPolicy = new SecurityPolicy();
   message: any;
   dnsResult: any;
-  certificate: any = null;
+  certificate: any = new Certificate();
   websiteForm = new FormGroup({
     domain: new FormControl('example.com', [Validators.required, Validators.pattern('.+')]),
     originIP: new FormControl('3.4.30.9', [Validators.required, Validators.pattern('.+')]),
@@ -41,6 +41,19 @@ export class AppComponent {
   onCertUpload(event: Event){
 	const file = (event.target as HTMLInputElement).files![0];
 	console.log('file upload ', file);	
+  	const reader = new FileReader();
+	console.log('reader ',reader);
+	reader.onload = (e: any) => {
+		const fileContent: string = e.target.result as string;
+		console.log("file content: ",fileContent);
+		this.certificate.fromfile(fileContent);
+		this.certificate.id = this.backend.randomID();
+		console.log("cert check ",this.certificate);
+	};
+	reader.onerror = (e: any) => {
+		console.log("file read error ",e);
+	};
+	reader.readAsText(file);
   }
 
   getConfig() {
