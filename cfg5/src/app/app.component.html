@@ -31,6 +31,7 @@
 	<label class="form__label">Backend: </label>
 	<input class="form__field" formControlName="originIP">
 </div>
+<!-- SSL -->
 <div class="form__group field">
 	<label class="form__label">Enable SSL: </label>
 </div>
@@ -47,6 +48,22 @@
 	<input class="form__field" type="radio" value="none" id="none" formControlName="SSL" >
 	<label class="form__label">No SSL </label>
 </div>
+<!-- Policy COnfigure -->
+<div class="form__group field">
+	<label class="form__label">Web Application Firewall</label>
+	<select id="WAF" class="form__field" formControlName="WAF" >
+		<option value="Monitor">Monitor</option>
+		<option value="Block">Blocking</option>
+	</select>
+</div>
+<div class="form__group field">
+	<label class="form__label">Bot Management</label>
+	<select id="WAF" class="form__field" formControlName="BOT" >
+		<option value="Allow">disabled</option>
+		<option value="Challenge">enabled</option>
+	</select>
+</div>
+<!-- Submit -->
 	<button [disabled]="!websiteForm.enabled" type="submit">Configure</button>
 </form> 
 <span class="result">
