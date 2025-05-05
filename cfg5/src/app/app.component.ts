@@ -27,6 +27,7 @@ export class AppComponent {
   websiteForm = new FormGroup({
     domain: new FormControl('example.com', [Validators.required, Validators.pattern('.+')]),
     originIP: new FormControl('3.4.30.9', [Validators.required, Validators.pattern('.+')]),
+    SSL: new FormControl(''),
     lecert: new FormControl('LE',[Validators.required]),
     cert: new FormControl(''),
   })

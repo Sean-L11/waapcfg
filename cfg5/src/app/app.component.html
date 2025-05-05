@@ -33,11 +33,19 @@
 </div>
 <div class="form__group field">
 	<label class="form__label">Enable SSL: </label>
-	<input class="form__field" type="checkbox" formControlName="lecert" >
-</div>	
+</div>
 <div class="form__group field">
+	<input class="form__field" type="radio" value="letsencrypt" id="letsencypt" formControlName="SSL" >
+	<label class="form__label">Let's Encrypt </label>
+</div>
+<div class="form__group field">
+	<input class="form__field" type="radio" value="upload" id="upload" formControlName="SSL" >
 	<label class="form__label">Upload SSL: </label>
 	<input class="form__field" formControlName="cert" type="file" (change)="onCertUpload($event)">
+</div>
+<div class="form__group field">
+	<input class="form__field" type="radio" value="none" id="none" formControlName="SSL" >
+	<label class="form__label">No SSL </label>
 </div>
 	<button [disabled]="!websiteForm.enabled" type="submit">Configure</button>
 </form> 
