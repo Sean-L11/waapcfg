@@ -28,7 +28,8 @@ export class AppComponent {
     domain: new FormControl('example.com', [Validators.required, Validators.pattern('.+')]),
     originIP: new FormControl('3.4.30.9', [Validators.required, Validators.pattern('.+')]),
     SSL: new FormControl(''),
-    lecert: new FormControl('LE',[Validators.required]),
+    WAF: new FormControl(''),
+    BOT: new FormControl(''),
     cert: new FormControl(''),
   })
 
@@ -81,15 +82,48 @@ export class AppComponent {
 	let ip = 'default.ip';
 	let fqdn = 'example.com';
 	let enableSSL = false;
+	let leCert = false;
+	let certid = this.backend.randomID();
 	if (this.websiteForm.get('originIP')){
 		ip = this.websiteForm.get('originIP')!.value+'';
 	}
 	if (this.websiteForm.get('domain')){
 		fqdn = this.websiteForm.get('domain')!.value+'';
 	}
-
-	if (this.websiteForm.get('cert')){
-		enableSSL = this.websiteForm.get('cert')!.value == "LE";
+	console.log('SSL ', this.websiteForm.get('SSL')!.value);
+	if (this.websiteForm.get('SSL')) { 
+		switch (this.websiteForm.get('SSL')!.value){
+			case "letsencrypt":
+				leCert = true;
+				enableSSL = true;
+				break;
+			case "upload":
+				leCert = false;	
+				enableSSL = true;
+				break;
+			case "none": 
+			default:
+				enableSSL = false;
+				break;
+		}
+	}
+	if (this.websiteForm.get('WAF')) { 
+		switch (this.websiteForm.get('WAF')!.value){
+			case "Blocking":
+				break;
+			case "Monitor": 
+			default:
+				break;
+		}
+	}
+	if (this.websiteForm.get('BOT')) { 
+		switch (this.websiteForm.get('BOT')!.value){
+			case "enabled":
+				break;
+			case "diaabled": 
+			default:
+				break;
+		}
 	}
 	const origin = new Origin(ip);
 	origin.id = this.backend.randomID();
@@ -98,7 +132,28 @@ export class AppComponent {
 
 	// set SSL
 	if (enableSSL) {
-	
+		if (leCert) {
+	// send le cert 
+			this.backend.postLECertificate(certid).subscribe({
+				next: (response) => {
+					console.log('cert response ',response);
+				},
+				error: (err) => {
+					console.log('cert error',err);
+				}	
+			});
+		} else {
+	// upload certificate
+			certid = this.certificate.id;
+			this.backend.postCertificate(this.certificate).subscribe({
+				next: (response) => {
+					console.log('cert response ',response);
+				},
+				error: (err) => {
+					console.log('cert error',err);
+				}	
+			});
+		}
 	//
 
 	}
@@ -120,6 +175,11 @@ export class AppComponent {
 	this.securitypolicy.id = this.backend.randomID();
 	  // preserve default site level backend
 	for (let i = 0; i < this.securitypolicy.map.length; i++){
+		//bot managemnet enabled = default ACL, diabled = No Challende
+		//
+		//
+		//WAF blocking = content filter active
+
 
 		//make acl & cf monitor only
 		this.securitypolicy.map[i].acl_profile_active = false;
