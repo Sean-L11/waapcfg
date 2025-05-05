@@ -16,6 +16,7 @@ export class ApiService {
   private sgURI = this.rootURI+'server-groups';
   private spURI = this.rootURI+'security-policies';
   private getURI = this.rootURI+'security-policies/__default__';
+  private certURI = this.rootURI+'certificates';
   private pushURI = this.protocol+'://'+this.server+':'+this.port+'/api/v4.0/tools/publish/prod';
   private dnsURI = this.protocol+'://'+this.server+':'+this.port+'/api/v4.0/tools/dns-information';
   
@@ -60,6 +61,22 @@ export class ApiService {
   postSecurityPolicy(payload: any): Observable<any> {
         let id = payload.id;
 	return this.http.post(this.spURI+'/'+id, payload, { 'headers': this.headers});
+  }
+
+  postLECertificate(certid: any): Observable<any> {
+	let payload = {
+  id: certid,
+  le_auto_renew: true,
+  le_auto_replace: true,
+  le_hash: "",
+  provider_links: []
+};
+	return this.http.post(this.certURI+'/'+payload.id, payload, { 'headers': this.headers});
+	
+  }
+  postCertificate(payload: any): Observable<any> {
+        let id = payload.id;
+	return this.http.post(this.certURI+'/'+id, payload, { 'headers': this.headers});
   }
 
   commit(account: string): Observable<any> {
