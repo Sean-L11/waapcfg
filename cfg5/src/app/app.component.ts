@@ -83,6 +83,9 @@ export class AppComponent {
 	let fqdn = 'example.com';
 	let enableSSL = false;
 	let leCert = false;
+	let enableWAF = false;
+	let enableACL = true;
+	let aclProfile = '__acldefault__';
 	let certid = this.backend.randomID();
 	if (this.websiteForm.get('originIP')){
 		ip = this.websiteForm.get('originIP')!.value+'';
@@ -107,24 +110,7 @@ export class AppComponent {
 				break;
 		}
 	}
-	if (this.websiteForm.get('WAF')) { 
-		switch (this.websiteForm.get('WAF')!.value){
-			case "Blocking":
-				break;
-			case "Monitor": 
-			default:
-				break;
-		}
-	}
-	if (this.websiteForm.get('BOT')) { 
-		switch (this.websiteForm.get('BOT')!.value){
-			case "enabled":
-				break;
-			case "diaabled": 
-			default:
-				break;
-		}
-	}
+
 	const origin = new Origin(ip);
 	origin.id = this.backend.randomID();
 	origin.name = fqdn+" backend";
@@ -171,6 +157,32 @@ export class AppComponent {
 	  }
 	});
 
+	if (this.websiteForm.get('WAF')) { 
+		switch (this.websiteForm.get('WAF')!.value){
+			case "Blocking":
+				enableWAF = true;
+				break;
+			case "Monitor": 
+			default:
+				enableWAF = false;
+				break;
+		}
+	}
+	
+	//bot managemnet enabled = default ACL, diabled = No Challende
+	if (this.websiteForm.get('BOT')) { 
+		switch (this.websiteForm.get('BOT')!.value){
+			case "enabled":
+				aclProfile = '__acldenybot__';
+				enableACL = true;
+				break;
+			case "diaabled": 
+			default:
+				aclProfile = '__acldefault__';
+				enableACL = false;
+				break;
+		}
+	}
 	  // change backend on new policy
 	this.securitypolicy.id = this.backend.randomID();
 	  // preserve default site level backend
@@ -178,12 +190,12 @@ export class AppComponent {
 		//bot managemnet enabled = default ACL, diabled = No Challende
 		//
 		//
+
+
+		this.securitypolicy.map[i].acl_profile = aclProfile;
+		this.securitypolicy.map[i].acl_profile_active = enableACL;
 		//WAF blocking = content filter active
-
-
-		//make acl & cf monitor only
-		this.securitypolicy.map[i].acl_profile_active = false;
-		this.securitypolicy.map[i].content_filter_profile_active = false;
+		this.securitypolicy.map[i].content_filter_profile_active = enableWAF;
 
 		if (this.securitypolicy.map[i].id != '__site_level__') {
 			this.securitypolicy.map[i].backend_service = origin.id;
