@@ -63,7 +63,7 @@ export class ApiService {
 	return this.http.post(this.spURI+'/'+id, payload, { 'headers': this.headers});
   }
 
-  postLECertificate(certid: any): Observable<any> {
+  postLECertificate(certid: any, domain: any): Observable<any> {
 	let payload = {
   id: certid,
   le_auto_renew: true,
@@ -71,12 +71,12 @@ export class ApiService {
   le_hash: "",
   provider_links: []
 };
-	return this.http.post(this.certURI+'/'+payload.id, payload, { 'headers': this.headers});
+	return this.http.post(this.certURI+'/'+payload.id + '?domains='+domain, payload, { 'headers': this.headers});
 	
   }
-  postCertificate(payload: any): Observable<any> {
+  postCertificate(payload: any, domain: any): Observable<any> {
         let id = payload.id;
-	return this.http.post(this.certURI+'/'+id, payload, { 'headers': this.headers});
+	return this.http.post(this.certURI+'/'+id + '?domains='+domain, payload, { 'headers': this.headers});
   }
 
   commit(account: string): Observable<any> {

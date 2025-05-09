@@ -86,12 +86,12 @@ export class AppComponent {
 	let enableWAF = false;
 	let enableACL = true;
 	let aclProfile = '__acldefault__';
-	let certid = this.backend.randomID();
+	let certid = 'placeholder';;
 	if (this.websiteForm.get('originIP')){
-		ip = this.websiteForm.get('originIP')!.value+'';
+		ip = this.websiteForm.get('originIP')!.value+"";
 	}
 	if (this.websiteForm.get('domain')){
-		fqdn = this.websiteForm.get('domain')!.value+'';
+		fqdn = this.websiteForm.get('domain')!.value+"";
 	}
 	console.log('SSL ', this.websiteForm.get('SSL')!.value);
 	if (this.websiteForm.get('SSL')) { 
@@ -99,10 +99,12 @@ export class AppComponent {
 			case "letsencrypt":
 				leCert = true;
 				enableSSL = true;
+				certid = this.backend.randomID();
 				break;
 			case "upload":
 				leCert = false;	
 				enableSSL = true;
+				certid = this.backend.randomID();
 				break;
 			case "none": 
 			default:
@@ -120,7 +122,7 @@ export class AppComponent {
 	if (enableSSL) {
 		if (leCert) {
 	// send le cert 
-			this.backend.postLECertificate(certid).subscribe({
+			this.backend.postLECertificate(certid, fqdn).subscribe({
 				next: (response) => {
 					console.log('cert response ',response);
 				},
@@ -131,7 +133,7 @@ export class AppComponent {
 		} else {
 	// upload certificate
 			certid = this.certificate.id;
-			this.backend.postCertificate(this.certificate).subscribe({
+			this.backend.postCertificate(this.certificate, fqdn).subscribe({
 				next: (response) => {
 					console.log('cert response ',response);
 				},
@@ -169,14 +171,14 @@ export class AppComponent {
 		}
 	}
 	
-	//bot managemnet enabled = default ACL, diabled = No Challende
+	//bot managemnet enabled = default ACL, disabled = No Challende
 	if (this.websiteForm.get('BOT')) { 
 		switch (this.websiteForm.get('BOT')!.value){
 			case "enabled":
 				aclProfile = '__acldenybot__';
 				enableACL = true;
 				break;
-			case "diaabled": 
+			case "disabled": 
 			default:
 				aclProfile = '__acldefault__';
 				enableACL = false;
@@ -212,11 +214,16 @@ export class AppComponent {
 	  }
 	});
 
-	  // set server group
+	// set server group
 	var servergroup = new ServerGroup(fqdn);
 	servergroup.id = this.backend.randomID();
-	  // apply new policy
+
+	// apply new policy
 	servergroup.security_policy = this.securitypolicy.id;
+	
+       	//apply ssl cert or placeholder
+	servergroup.ssl_certificate = certid;	
+	
 	console.log("server group ",servergroup);
 	this.backend.postServer(servergroup).subscribe({
 	  next:(response) => {
@@ -226,8 +233,6 @@ export class AppComponent {
 		console.log('server error ',err);
 	  }
 	});
-	// upload SSL cert
-	//
 	// apply cert to LB - make default
 	//
 	// push update
