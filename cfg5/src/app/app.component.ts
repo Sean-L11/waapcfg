@@ -118,33 +118,6 @@ export class AppComponent {
 	origin.name = fqdn+" backend";
 	origin.description = "Backend Service for "+fqdn;
 
-	// set SSL
-	if (enableSSL) {
-		if (leCert) {
-	// send le cert 
-			this.backend.postLECertificate(certid, fqdn).subscribe({
-				next: (response) => {
-					console.log('cert response ',response);
-				},
-				error: (err) => {
-					console.log('cert error',err);
-				}	
-			});
-		} else {
-	// upload certificate
-			certid = this.certificate.id;
-			this.backend.postCertificate(this.certificate, fqdn).subscribe({
-				next: (response) => {
-					console.log('cert response ',response);
-				},
-				error: (err) => {
-					console.log('cert error',err);
-				}	
-			});
-		}
-	//
-
-	}
 
 	console.log('origin ',origin);
 
@@ -235,6 +208,33 @@ export class AppComponent {
 	});
 	// apply cert to LB - make default
 	//
+	// set SSL
+	if (enableSSL) {
+		if (leCert) {
+	// send le cert 
+			this.backend.postLECertificate(certid, fqdn).subscribe({
+				next: (response) => {
+					console.log('cert response ',response);
+				},
+				error: (err) => {
+					console.log('cert error',err);
+				}	
+			});
+		} else {
+	// upload certificate
+			certid = this.certificate.id;
+			this.backend.postCertificate(this.certificate, fqdn).subscribe({
+				next: (response) => {
+					console.log('cert response ',response);
+
+				},
+				error: (err) => {
+					console.log('cert error',err);
+				}	
+			});
+		}
+	//
+	}
 	// push update
 	
 	this.backend.commit(this.service).subscribe({
