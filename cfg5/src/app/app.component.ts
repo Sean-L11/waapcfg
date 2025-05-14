@@ -87,6 +87,7 @@ export class AppComponent {
 	let enableACL = true;
 	let aclProfile = '__acldefault__';
 	let certid = 'placeholder';;
+	console.log('Form Data ',this.websiteForm);
 	if (this.websiteForm.get('originIP')){
 		ip = this.websiteForm.get('originIP')!.value+"";
 	}
@@ -134,7 +135,7 @@ export class AppComponent {
 
 	if (this.websiteForm.get('WAF')) { 
 		switch (this.websiteForm.get('WAF')!.value){
-			case "Blocking":
+			case "Block":
 				enableWAF = true;
 				break;
 			case "Monitor": 
@@ -147,11 +148,11 @@ export class AppComponent {
 	//bot managemnet enabled = default ACL, disabled = No Challende
 	if (this.websiteForm.get('BOT')) { 
 		switch (this.websiteForm.get('BOT')!.value){
-			case "enabled":
+			case "Challenge":
 				aclProfile = '__acldenybot__';
 				enableACL = true;
 				break;
-			case "disabled": 
+			case "Allow": 
 			default:
 				aclProfile = '__acldefault__';
 				enableACL = false;
@@ -195,7 +196,7 @@ export class AppComponent {
 	servergroup.security_policy = this.securitypolicy.id;
 	
        	//apply ssl cert or placeholder
-	servergroup.ssl_certificate = certid;	
+//	servergroup.ssl_certificate = certid;	
 	
 	console.log("server group ",servergroup);
 	this.backend.postServer(servergroup).subscribe({
@@ -215,6 +216,7 @@ export class AppComponent {
 			this.backend.postLECertificate(certid, fqdn).subscribe({
 				next: (response) => {
 					console.log('cert response ',response);
+					this.backend.attachCertificate(certid, servergroup);
 				},
 				error: (err) => {
 					console.log('cert error',err);
@@ -226,7 +228,7 @@ export class AppComponent {
 			this.backend.postCertificate(this.certificate, fqdn).subscribe({
 				next: (response) => {
 					console.log('cert response ',response);
-
+					this.backend.attachCertificate(certid, servergroup);	
 				},
 				error: (err) => {
 					console.log('cert error',err);
