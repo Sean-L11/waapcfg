@@ -163,18 +163,13 @@ export class AppComponent {
 	this.securitypolicy.id = this.backend.randomID();
 	  // preserve default site level backend
 	for (let i = 0; i < this.securitypolicy.map.length; i++){
-		//bot managemnet enabled = default ACL, diabled = No Challende
-		//
-		//
-
-
-		this.securitypolicy.map[i].acl_profile = aclProfile;
-		this.securitypolicy.map[i].acl_profile_active = enableACL;
-		//WAF blocking = content filter active
-		this.securitypolicy.map[i].content_filter_profile_active = enableWAF;
-
+		//cannot update site level location
 		if (this.securitypolicy.map[i].id != '__site_level__') {
 			this.securitypolicy.map[i].backend_service = origin.id;
+			this.securitypolicy.map[i].acl_profile = aclProfile;
+			this.securitypolicy.map[i].acl_profile_active = enableACL;
+			this.securitypolicy.map[i].content_filter_profile_active = enableWAF;
+
 		}
 	}
 	this.securitypolicy.name = fqdn+" Security Policy";
