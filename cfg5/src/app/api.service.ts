@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { v4 as uuidv4 } from 'uuid';
+import { ArrayResponseInterface } from '../lib/arrayresponse';
 
 @Injectable({
   providedIn: 'root'
@@ -17,6 +18,7 @@ export class ApiService {
   private spURI = this.rootURI+'security-policies';
   private getURI = this.rootURI+'security-policies/__default__';
   private certURI = this.rootURI+'certificates';
+  private lbURI = this.rootURI+'load-balancers';
   private pushURI = this.protocol+'://'+this.server+':'+this.port+'/api/v4.0/tools/publish/prod';
   private dnsURI = this.protocol+'://'+this.server+':'+this.port+'/api/v4.0/tools/dns-information';
   
@@ -63,7 +65,7 @@ export class ApiService {
 	return this.http.post(this.spURI+'/'+id, payload, { 'headers': this.headers});
   }
 
-  postLECertificate(certid: any): Observable<any> {
+  postLECertificate(certid: any, domain: any): Observable<any> {
 	let payload = {
   id: certid,
   le_auto_renew: true,
@@ -71,12 +73,45 @@ export class ApiService {
   le_hash: "",
   provider_links: []
 };
-	return this.http.post(this.certURI+'/'+payload.id, payload, { 'headers': this.headers});
+	return this.http.post(this.certURI+'/'+payload.id + '?domains='+domain, payload, { 'headers': this.headers});
 	
   }
-  postCertificate(payload: any): Observable<any> {
+  postCertificate(payload: any, domain: any): Observable<any> {
         let id = payload.id;
-	return this.http.post(this.certURI+'/'+id, payload, { 'headers': this.headers});
+	return this.http.post(this.certURI+'/'+id + '?domains='+domain, payload, { 'headers': this.headers});
+  }
+
+  attachCertificate(certid: any, servergroup: any) {
+	servergroup.ssl_certificate = certid;
+//	let RR: ArrayResponse = new ArrayResponse();
+	this.http.put(this.sgURI+'/'+servergroup.id, servergroup, { 'headers': this.headers}).subscribe({
+		next: (response) => {
+			console.log('update server ',response);
+		},
+		error: (err) => {
+			console.log('update server ',err);
+		}
+	});
+	this.http.get<ArrayResponseInterface>(this.lbURI, { 'headers': this.headers}).subscribe({
+		next: (response) => {
+			//RR = response; 
+			console.log('LB GET ',response);
+			let entryname = response.items[0]!.name; 
+			let listener = response.items[0].listener_name;
+			this.http.put(this.lbURI+'/'+entryname+'/certificates/'+certid+'?provider=gcp&region=global&default=true&listener='+listener+'&listener-port=443', null, { 'headers': this.headers}).subscribe({
+				next: (response) => {
+					console.log('LB PUT ',response);
+				},
+				error: (err) => {
+					console.log('LB PUT ',err);
+				}	
+			});
+		},
+		error: (err) => {
+			console.log('LB GET ',err);
+		}
+
+	});
   }
 
   commit(account: string): Observable<any> {
