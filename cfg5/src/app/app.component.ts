@@ -30,6 +30,7 @@ export class AppComponent {
     SSL: new FormControl(''),
     WAF: new FormControl(''),
     BOT: new FormControl(''),
+
     cert: new FormControl(''),
   })
 
