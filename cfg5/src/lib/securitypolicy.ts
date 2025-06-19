@@ -44,7 +44,7 @@ export class PathMap implements PathMapInterface {
 	description: string = '';
 	name: string;
 	match: string;
-	acl_profile: string = '__acl_default__';
+	acl_profile: string = '__acldefault__';
 	acl_profile_active: boolean = false;
 	content_filter_profile: string = '__defaultcontentfilter__';
 	content_filter_profile_active: boolean = false;
