@@ -21,8 +21,8 @@ import { Filter } from '../lib/filter';
 })
 export class AppComponent {
   title = 'cfg5';
-  service = 'v5demo';
-  apikey = 'L7rOxY78SK2-XpL7dsGipWcCJ818DRWE6xGfjB2eiheQcjLnEHUxXfqrGil9K405';
+  service = '';
+  apikey = '';
   backend = inject(ApiService);
   private securitypolicy: SecurityPolicy = new SecurityPolicy();
   countryList: any = new CountryList();
@@ -31,8 +31,8 @@ export class AppComponent {
   dnsResult: any;
   certificate: any = new Certificate();
   websiteForm = new FormGroup({
-    domain: new FormControl('example.com', [Validators.required, Validators.pattern('.+')]),
-    originIP: new FormControl('3.4.30.9', [Validators.required, Validators.pattern('.+')]),
+    domain: new FormControl('your.domain.here', [Validators.required, Validators.pattern('.+')]),
+    originIP: new FormControl('1.2.3.4', [Validators.required, Validators.pattern('.+')]),
     SSL: new FormControl(''),
     WAF: new FormControl(''),
     BOT: new FormControl(''),
@@ -85,14 +85,15 @@ export class AppComponent {
 		  this.websiteForm.disable();
 	  }
 	});
+	//this get LB provider / regioni
   }
 
 
   submitConfig(submit = true) {
-	let putconsole = true;
+	let putconsole = false;
 	  // set origin
 	let ip = 'default.ip';
-	let fqdn = 'example.com';
+	let fqdn = 'Link11 WAAP';
 	let enableSSL = false;
 	let leCert = false;
 	let enableWAF = false;
