@@ -1,6 +1,8 @@
 import { Component, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { NgFor } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { BrowserModule } from '@angular/platform-browser';
 import { FormGroup, FormBuilder, FormControl}  from '@angular/forms';
 import { ReactiveFormsModule, Validators } from '@angular/forms';
 import { Origin, BackHost } from '../lib/origin';
@@ -8,10 +10,12 @@ import { SecurityPolicy, PathMap } from '../lib/securitypolicy';
 import { ServerGroup } from '../lib/servergroup';
 import { ApiService } from './api.service';
 import { Certificate } from '../lib/certificate';
+import { CountryList } from '../lib/countrylist';
+import { Filter } from '../lib/filter';
 
 @Component({
   selector: 'app-root',
-  imports: [FormsModule, ReactiveFormsModule, RouterOutlet],
+  imports: [FormsModule, ReactiveFormsModule, RouterOutlet, NgFor],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
@@ -21,6 +25,8 @@ export class AppComponent {
   apikey = 'L7rOxY78SK2-XpL7dsGipWcCJ818DRWE6xGfjB2eiheQcjLnEHUxXfqrGil9K405';
   backend = inject(ApiService);
   private securitypolicy: SecurityPolicy = new SecurityPolicy();
+  countryList: any = new CountryList();
+  geoSelect = [];
   message: any;
   dnsResult: any;
   certificate: any = new Certificate();
@@ -32,6 +38,10 @@ export class AppComponent {
     BOT: new FormControl(''),
 
     cert: new FormControl(''),
+    filterAction: new FormControl(''),
+//    GeoList: new FormControl(this.countryList),
+    GeoList: new FormControl(this.geoSelect),
+    IPList: new FormControl(''),
   })
 
   contructor(fb: FormBuilder) {
@@ -77,8 +87,9 @@ export class AppComponent {
 	});
   }
 
-  submitConfig() {
 
+  submitConfig(submit = true) {
+	let putconsole = true;
 	  // set origin
 	let ip = 'default.ip';
 	let fqdn = 'example.com';
@@ -88,14 +99,14 @@ export class AppComponent {
 	let enableACL = true;
 	let aclProfile = '__acldefault__';
 	let certid = 'placeholder';;
-	console.log('Form Data ',this.websiteForm);
+	if (putconsole) {console.log('Form Data ',this.websiteForm);}
 	if (this.websiteForm.get('originIP')){
 		ip = this.websiteForm.get('originIP')!.value+"";
 	}
 	if (this.websiteForm.get('domain')){
 		fqdn = this.websiteForm.get('domain')!.value+"";
 	}
-	console.log('SSL ', this.websiteForm.get('SSL')!.value);
+	if (putconsole) {console.log('SSL ', this.websiteForm.get('SSL')!.value);}
 	if (this.websiteForm.get('SSL')) { 
 		switch (this.websiteForm.get('SSL')!.value){
 			case "letsencrypt":
@@ -121,19 +132,20 @@ export class AppComponent {
 	origin.description = "Backend Service for "+fqdn;
 
 
-	console.log('origin ',origin);
+	if (putconsole) {console.log('origin ',origin);}
 
-	this.backend.setAuth(this.service, this.apikey);
+	if (submit) {this.backend.setAuth(this.service, this.apikey);}
 
-	this.backend.postOrigin(origin).subscribe({
-	  next:(response) => {
-		  console.log('origin Response ',response);
-	  },
-	  error:(err) => {
-		  console.error('origin Error ',err)
-	  }
-	});
-
+	if (submit) {
+		this.backend.postOrigin(origin).subscribe({
+		  next:(response) => {
+			  console.log('origin Response ',response);
+		  },
+		  error:(err) => {
+			  console.error('origin Error ',err)
+		  }
+		});
+	}
 	if (this.websiteForm.get('WAF')) { 
 		switch (this.websiteForm.get('WAF')!.value){
 			case "Block":
@@ -145,7 +157,70 @@ export class AppComponent {
 				break;
 		}
 	}
-	
+//Global filter restrictions for Geo / IP
+	if (this.websiteForm.get("filterAction")!.value != "ignore") {	
+		let restrictionFilter = new Filter();
+		restrictionFilter.id = this.backend.randomID();
+		restrictionFilter.description = "Global " +this.websiteForm.get("filterAction")!.value + " list";
+		restrictionFilter.rule.entries = [];
+		restrictionFilter.name = restrictionFilter.description + " ("+fqdn+")"
+		//for GEO
+		if (this.websiteForm.get("GeoList")!.value && this.websiteForm.get("GeoList")!.value!.length > 0) {
+			console.log("Geo: ",this.websiteForm.get("GeoList")!.value);
+			for (const country of this.websiteForm.get("GeoList")!.value!) {
+				restrictionFilter.rule.entries.push([
+					"country", 
+					country, 
+					this.websiteForm.get("filterAction")!.value + " " + country
+				]);
+		
+			}
+		}
+		//for each IP
+		if (this.websiteForm.get("IPList")!.value && this.websiteForm.get("IPList")!.value!.length > 0) {
+			let ipArray: string[] = this.websiteForm.get("IPList")!.value!.split('\n');
+			console.log("IP", ipArray);
+		        for (const addr of ipArray) {	
+				restrictionFilter.rule.entries.push([
+					"ip", 
+					addr, 
+					this.websiteForm.get("filterAction")!.value + " " + addr
+			])
+			}
+		}
+		switch (this.websiteForm.get("filterAction")!.value) {
+			case "block":
+		// Global filter tag deny specific country / IP
+				restrictionFilter.tags = [
+					"global-acl-enforce-deny",
+					"enforce-acl-deny"
+				]
+				restrictionFilter.active = true;
+				break;
+			case "allow": 
+		// Global filter tag allow specific country / IP
+				restrictionFilter.tags = [
+					"global-acl-bypass",
+					"global-acl-bypass-all",
+					"global-content-filter-ignore"
+				]
+				restrictionFilter.active = true;
+				break;
+		}
+
+		if (putconsole) {console.log("global filter:", restrictionFilter);}
+		if (submit) {
+			this.backend.postFilter(restrictionFilter).subscribe({
+				next:(response) => {
+					console.log("filter success ",response);
+				},
+				error:(err) => {
+					console.log("filter error ",err);
+				}
+			})
+		}
+
+	}
 	//bot managemnet enabled = default ACL, disabled = No Challende
 	if (this.websiteForm.get('BOT')) { 
 		switch (this.websiteForm.get('BOT')!.value){
@@ -174,16 +249,17 @@ export class AppComponent {
 		}
 	}
 	this.securitypolicy.name = fqdn+" Security Policy";
-	console.log('security policy ',this.securitypolicy);
-	this.backend.postSecurityPolicy(this.securitypolicy).subscribe({
-	  next:(response) => {
-		console.log('policy response ',response);
-	  },
-	  error:(err) => {
-		console.log('policy error ',err);
-	  }
-	});
-
+	if (putconsole) {console.log('security policy ',this.securitypolicy);}
+	if (submit) {
+		this.backend.postSecurityPolicy(this.securitypolicy).subscribe({
+	 	  next:(response) => {
+			console.log('policy response ',response);
+		  },
+		  error:(err) => {
+			console.log('policy error ',err);
+		  }
+		});
+	}
 	// set server group
 	var servergroup = new ServerGroup(fqdn);
 	servergroup.id = this.backend.randomID();
@@ -194,15 +270,17 @@ export class AppComponent {
        	//apply ssl cert or placeholder
 //	servergroup.ssl_certificate = certid;	
 	
-	console.log("server group ",servergroup);
-	this.backend.postServer(servergroup).subscribe({
-	  next:(response) => {
-		console.log('server response ',response);
-	  },
-	  error:(err) => {
-		console.log('server error ',err);
-	  }
-	});
+	if (putconsole) {console.log("server group ",servergroup);}
+	if (submit) {
+		this.backend.postServer(servergroup).subscribe({
+		  next:(response) => {
+			console.log('server response ',response);
+		  },
+		  error:(err) => {
+			console.log('server error ',err);
+		  }
+		});
+	}
 	// apply cert to LB - make default
 	//
 	// set SSL
@@ -234,31 +312,34 @@ export class AppComponent {
 	//
 	}
 	// push update
-	
-	this.backend.commit(this.service).subscribe({
-	  next:(response) => {
-		console.log('commit response ', response);
-	  },
-	  error:(err) => {
-		console.log('commit error ',err);
-	  }	  
-	});
+	if (submit) {
+		this.backend.commit(this.service).subscribe({
+		  next:(response) => {
+			console.log('commit response ', response);
+		  },
+		  error:(err) => {
+			console.log('commit error ',err);
+		  }	  
+		});
+	}
 	// display DNS info:
 	//
 	//
-	this.backend.getDNS().subscribe({
-	  next:(response) => {
-		console.log('dns response',response);
-		for (let i=0; i<response.dns_records.length; i++){
-			let r = response.dns_records[i];
-			if (r.name.substring(0,9) == 'fire-prod'){
-				this.dnsResult = "Please update "+fqdn+" dns record to point to:\n "+r.name+" ( "+r.resource_records[0]+" )";
+	if (submit) {
+		this.backend.getDNS().subscribe({
+		  next:(response) => {
+			console.log('dns response',response);
+			for (let i=0; i<response.dns_records.length; i++){
+				let r = response.dns_records[i];
+				if (r.name.substring(0,9) == 'fire-prod'){
+					this.dnsResult = "Please update "+fqdn+" dns record to point to:\n "+r.name+" ( "+r.resource_records[0]+" )";
+				}
 			}
-		}
-	  },
-	  error:(err) => {
-	  	console.log('dns error',err);
-	  }
-        });	
+		  },
+		  error:(err) => {
+		  	console.log('dns error',err);
+		  }
+        	});	
+	}
   }  
 }

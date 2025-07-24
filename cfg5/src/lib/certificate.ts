@@ -16,7 +16,7 @@ export interface CertificateInterface {
 	crl: any;
 	cdp: any;
 	side: string;
-	links: any;
+	provider_links: any;
 
 }
 
@@ -36,7 +36,7 @@ export class Certificate implements CertificateInterface{
 	crl: any;
 	cdp: any;
 	side: string = 'server';
-	links: any;
+	provider_links: any;
 
 	constructor(subject: string = 'Default'){
 		this.name = subject + " Certificate";

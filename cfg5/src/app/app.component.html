@@ -63,8 +63,30 @@
 		<option value="Challenge">enabled</option>
 	</select>
 </div>
+<!-- Optional REstrictions -->
+<div class="form__group field">
+	<label class="form__label">OPTIONAL Restrictions: </label>
+	<select class="form__field" id="filterAction" formControlName="filterAction">
+		<option value="ignore"> disabled </option>
+		<option value="allow"> Whitelist Selected </option>
+		<option value="block"> Block Selected </option>
+	</select>
+</div>
+<div class="form__group filed">
+	<label class="form__label">Country Restrictions: </label>
+</div>
+<div class="form__group field">
+	<select class="form__field" id="geoList" formControlName="GeoList" multiple>
+		<option *ngFor="let country of countryList.list" [ngValue]="country.name">{{country.name}}</option>
+	</select>
+</div>
+<div class="form__group field">
+	<label class="form__label">IP Restrictions: </label>
+</div>
+<div class="form__field">
+	<textarea class="form__field" id="ipList" formControlName="IPList"></textarea>
+</div>
 <!-- Submit -->
-
 	<button [disabled]="!websiteForm.enabled" type="submit">Configure</button>
 </form> 
 <span class="result">

@@ -19,6 +19,7 @@ export class ApiService {
   private getURI = this.rootURI+'security-policies/__default__';
   private certURI = this.rootURI+'certificates';
   private lbURI = this.rootURI+'load-balancers';
+  private filterURL = this.rootURI+'global-filters';
   private pushURI = this.protocol+'://'+this.server+':'+this.port+'/api/v4.0/tools/publish/prod';
   private dnsURI = this.protocol+'://'+this.server+':'+this.port+'/api/v4.0/tools/dns-information';
   
@@ -47,6 +48,12 @@ export class ApiService {
 
   getData(): Observable<any>{
 	return this.http.get(this.getURI, { headers : this.headers });
+  }
+
+  postFilter(payload: any): Observable<any> {
+	let id = payload.id;
+	return this.http.post(this.filterURL+'/'+id, payload, { 'headers': this.headers});
+
   }
 
   postOrigin(payload: any): Observable<any> {
