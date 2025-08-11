@@ -22,7 +22,8 @@ export class ApiService {
   private filterURL = this.rootURI+'global-filters';
   private pushURI = this.protocol+'://'+this.server+':'+this.port+'/api/v4.0/tools/publish/prod';
   private dnsURI = this.protocol+'://'+this.server+':'+this.port+'/api/v4.0/tools/dns-information';
-  
+  private resolverURI = "https://dns.google/resolve";
+
   // need to use local URL - use nginx to proxy to xyz.app.reblaze.io
   private headers = new HttpHeaders()
 
@@ -119,6 +120,14 @@ export class ApiService {
 		}
 
 	});
+  }
+
+  resolveAddress(domain: string): Observable<any> {
+	let params = {
+	name: domain,
+	type: 1
+	};
+	return this.http.get(this.resolverURI, { params: params });
   }
 
   commit(account: string): Observable<any> {

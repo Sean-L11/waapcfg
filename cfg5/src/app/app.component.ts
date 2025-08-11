@@ -1,10 +1,11 @@
-import { Component, inject } from '@angular/core';
+import { Component, ViewChild, ElementRef, AfterViewInit, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { NgFor } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
 import { FormGroup, FormBuilder, FormControl}  from '@angular/forms';
 import { ReactiveFormsModule, Validators } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 import { Origin, BackHost } from '../lib/origin';
 import { SecurityPolicy, PathMap } from '../lib/securitypolicy';
 import { ServerGroup } from '../lib/servergroup';
@@ -16,13 +17,32 @@ import { Filter } from '../lib/filter';
 @Component({
   selector: 'app-root',
   imports: [FormsModule, ReactiveFormsModule, RouterOutlet, NgFor],
-  templateUrl: './app.component.html',
-  styleUrl: './app.component.css'
+  templateUrl: './alternate.component.html',
+  styleUrl: './alternate.component.css'
 })
-export class AppComponent {
+export class AppComponent implements AfterViewInit {
+  @ViewChild('btnNext') guibtnNext!: ElementRef;
+  @ViewChild('btnBack') guibtnBack!: ElementRef;
+  @ViewChild('progressText') guiprgTxt!: ElementRef;
+  @ViewChild('progressBar') guiprgBar!: ElementRef;
+  @ViewChild('guiPhase1') guiPhase1!: ElementRef;
+  @ViewChild('guiPhase2') guiPhase2!: ElementRef;
+  @ViewChild('guiPhase3') guiPhase3!: ElementRef;
+  @ViewChild('guiPhase4') guiPhase4!: ElementRef;
+  @ViewChild('guiPhase5') guiPhase5!: ElementRef;
+  @ViewChild('phaseButton1') guiPhaseButton1!: ElementRef;
+  @ViewChild('phaseButton2') guiPhaseButton2!: ElementRef;
+  @ViewChild('phaseButton3') guiPhaseButton3!: ElementRef;
+  @ViewChild('phaseButton4') guiPhaseButton4!: ElementRef;
+
+  guiPhaseArray: ElementRef[] = [];
+  guiPhaseButtonArray: ElementRef[] = [];
+
   title = 'cfg5';
-  service = '';
-  apikey = '';
+  service: string = '';
+  apikey: string = '';
+  private rawAcct: string | null = null;
+  private rawApi: string | null = null;
   backend = inject(ApiService);
   private securitypolicy: SecurityPolicy = new SecurityPolicy();
   countryList: any = new CountryList();
@@ -39,16 +59,62 @@ export class AppComponent {
 
     cert: new FormControl(''),
     filterAction: new FormControl(''),
-//    GeoList: new FormControl(this.countryList),
     GeoList: new FormControl(this.geoSelect),
     IPList: new FormControl(''),
   })
 
-  contructor(fb: FormBuilder) {
+  guiPhase: number = 1;
+
+  constructor(private route: ActivatedRoute) {
   }
 
-  ngOnInit() {
+  ngOnInit(): void {
 	this.websiteForm.disable();
+	this.route.queryParams.subscribe(params => {
+			this.service = params['acct'];
+			this.apikey = params['apikey'];
+			this.getConfig();
+		});
+  }
+
+  ngAfterViewInit(): void {
+	this.guiPhaseArray = new Array(
+		this.guiPhase1, 
+		this.guiPhase2, 
+		this.guiPhase3, 
+		this.guiPhase4, 
+		this.guiPhase5
+	);
+	this.guiPhaseButtonArray = new Array(
+		this.guiPhaseButton1,
+		this.guiPhaseButton2,
+		this.guiPhaseButton3,
+		this.guiPhaseButton4
+	);
+  }
+
+  url2host(url: string){
+	let host: string = '';
+	var urlPattern = /^(https?:\/\/)?((([a-z\d]([a-z\d-]*[a-z\d])*)\.)+[a-z]{2,}|((\d{1,3}\.){3}\d{1,3}))(\:\d+)?(\/[-a-z\d%_.~+]*)*(\?[;&a-z\d%_.~+=-]*)?(\#[-a-z\d_]*)?$/;
+	const match = urlPattern.exec(url);
+	if (match) {host = match[2];}
+	return host;
+  }
+
+  onDomainBlur(){
+	const domain = this.websiteForm.get('domain')!.value;
+	this.backend.resolveAddress(this.url2host(domain!)).subscribe({
+		next:(response) => {
+			console.log('dns response',response);
+			if (response.Answer) {
+				console.log('answer',response.Answer[0].data);
+				this.websiteForm.get('originIP')?.setValue(response.Answer[0].data);
+			}
+		},
+		error:(err) => {
+			console.log('dns error',err);
+		}
+	});
   }
 
   onCertUpload(event: Event){
@@ -71,6 +137,7 @@ export class AppComponent {
 
   getConfig() {
 	this.backend.setAuth(this.service, this.apikey);
+	console.log('auth', this.service + ":" + this.apikey);
 	this.backend.getData().subscribe({
 	  next:(response) => {
 		  console.log('Fetched ',response);
@@ -80,17 +147,15 @@ export class AppComponent {
 		  
 	  },
 	  error:(err) => {
-		  console.error('Error ',err)
+		  console.error('Fetch Error ',err)
 		  this.message = "Authentication Failed...";
 		  this.websiteForm.disable();
 	  }
 	});
-	//this get LB provider / regioni
   }
 
-
   submitConfig(submit = true) {
-	let putconsole = false;
+	let putconsole = true;
 	  // set origin
 	let ip = 'default.ip';
 	let fqdn = 'Link11 WAAP';
@@ -269,8 +334,6 @@ export class AppComponent {
 	servergroup.security_policy = this.securitypolicy.id;
 	
        	//apply ssl cert or placeholder
-//	servergroup.ssl_certificate = certid;	
-	
 	if (putconsole) {console.log("server group ",servergroup);}
 	if (submit) {
 		this.backend.postServer(servergroup).subscribe({
@@ -282,8 +345,6 @@ export class AppComponent {
 		  }
 		});
 	}
-	// apply cert to LB - make default
-	//
 	// set SSL
 	if (enableSSL) {
 		if (leCert) {
@@ -310,7 +371,6 @@ export class AppComponent {
 				}	
 			});
 		}
-	//
 	}
 	// push update
 	if (submit) {
@@ -324,15 +384,13 @@ export class AppComponent {
 		});
 	}
 	// display DNS info:
-	//
-	//
 	if (submit) {
 		this.backend.getDNS().subscribe({
 		  next:(response) => {
 			console.log('dns response',response);
-			for (let i=0; i<response.dns_records.length; i++){
+			for (let i = 0; i < response.dns_records.length; i++){
 				let r = response.dns_records[i];
-				if (r.name.substring(0,9) == 'fire-prod'){
+				if (r.name.substring(0,9) == 'fire-prod') {
 					this.dnsResult = "Please update "+fqdn+" dns record to point to:\n "+r.name+" ( "+r.resource_records[0]+" )";
 				}
 			}
@@ -343,4 +401,30 @@ export class AppComponent {
         	});	
 	}
   }  
+  guiCloseSetup() {
+
+  }
+
+  guiShowStep(step: number) {
+	this.guiPhase = step;
+	for (let p=0; p < this.guiPhaseArray.length; p++) {
+		this.guiPhaseArray[p].nativeElement.classList.toggle('active', p === (step -1));
+		if (p < this.guiPhaseButtonArray.length) {
+			this.guiPhaseButtonArray[p].nativeElement.classList.toggle('active' , p === (step -1));
+			this.guiPhaseButtonArray[p].nativeElement.classList.toggle('done', p < (step-1));
+		}
+		console.log(p,(p===(step-1)));
+	}
+	console.log(step,this.guiPhaseButtonArray);
+	this.guiprgTxt.nativeElement.innerText = step <= 4 ? 'Step '+step+'/4' : 'Complete';
+	this.guiprgBar.nativeElement.style.width = ((step - 1) / 4 *100)+'%';
+	this.guibtnBack.nativeElement.disabled = step === 1;
+	let nb = this.guibtnNext.nativeElement;
+	if (step == 5) nb.textContent = 'Close'; else nb.textContent = step === 4 ? 'Finish' : 'Next';
+	console.log(step, this.websiteForm);
+  }
+
+  guiNextStep() { if (this.guiPhase < 5) this.guiShowStep(this.guiPhase + 1); else this.guiCloseSetup();}
+  guiPrevStep() { if (this.guiPhase > 1) this.guiShowStep(this.guiPhase - 1);}
+
 }
