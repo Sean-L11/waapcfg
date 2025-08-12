@@ -105,9 +105,7 @@ export class AppComponent implements AfterViewInit {
 	const domain = this.websiteForm.get('domain')!.value;
 	this.backend.resolveAddress(this.url2host(domain!)).subscribe({
 		next:(response) => {
-			console.log('dns response',response);
 			if (response.Answer) {
-				console.log('answer',response.Answer[0].data);
 				this.websiteForm.get('originIP')?.setValue(response.Answer[0].data);
 			}
 		},
@@ -151,6 +149,20 @@ export class AppComponent implements AfterViewInit {
 		  this.message = "Authentication Failed...";
 		  this.websiteForm.disable();
 	  }
+	});
+	this.backend.getDNS().subscribe({
+		next:(response) => {
+			console.log('dns response',response);
+			for (let i = 0; i < response.dns_records.length; i++){
+				let r = response.dns_records[i];
+				if (r.name.substring(0,9) == 'fire-prod') {
+					this.dnsResult = "Please update dns record to point to:\n "+r.name+" ( "+r.resource_records[0]+" )";
+				}
+			}
+		},
+		error:(err) => {
+			console.log('dns error',err);
+		}
 	});
   }
 
