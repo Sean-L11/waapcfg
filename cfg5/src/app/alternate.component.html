@@ -1,0 +1,126 @@
+  <div class="container" [formGroup]="websiteForm" (ngSubmit)="submitConfig()">
+    <button class="close-x" (click)="guiCloseSetup()">×</button>
+    <h1>Welcome to Link11 Setup</h1>
+    <div class="subtext">Configure your domain protection in four easy steps. You'll know exactly where you are at all times.</div>
+
+    <div #progressText class="progress-text" id="progressText">Step 1/4</div>
+    <div #progressBar class="progress-bar"><div class="progress-fill" id="progress" style="width: 0%"></div></div>
+
+    <div class="steps" id="stepNav">
+      <div #phaseButton1 class="step-btn active" (click)="guiShowStep(1)">1. Domain</div>
+      <div #phaseButton2 class="step-btn" (click)="guiShowStep(2)">2. SSL</div>
+      <div #phaseButton3 class="step-btn" (click)="guiShowStep(3)">3. Security</div>
+      <div #phaseButton4 class="step-btn" (click)="guiShowStep(4)">4. GEO/IP</div>
+    </div>
+  
+    <!-- Step 1 -->
+    <div #guiPhase1 class="step-content active" id="step-1">
+      <label for="domain">Website</label>
+      <div class="section-subtext">Gib hier deine Hauptdomain ein, z. B. <em>www.deinefirma.com</em>, die wir schützen. Benutzer rufen künftig diese Adresse auf.</div>
+      <div class="form-group">
+<!--        <input type="text" id="domain" placeholder="your.domain.here" />
+-->	<input formControlName="domain" (blur)="onDomainBlur()">
+      </div>
+      <label for="originIP">Backend Server</label>
+      <div class="section-subtext">Backend description here</div>
+      <div class="form_group">	
+      	<input formControlName="originIP">
+      </div>
+    </div>
+
+    <!-- Step 2 -->
+    <div #guiPhase2 class="step-content" id="step-2">
+      <label>SSL Configuration</label>
+      <div class="section-subtext">Verbinde dein Backend und wähle aus, wie das SSL-Zertifikat erstellt oder hochgeladen wird, um deine Inhalte zu verschlüsseln.</div>
+      <div class="form-group switch-container">
+        <div>
+          <label>Let’s Encrypt</label>
+          <div class="section-subtext">Automatisch ein kostenloses SSL-Zertifikat erstellen und verlängern lassen.</div>
+        </div>
+        <label class="switch">
+          <input #optLESSL type="checkbox" id="sslAuto" (click)="guiOptSyncLets()" checked>
+          <span class="slider"></span>
+        </label>
+      </div>
+      <div class="form-group switch-container">
+        <div>
+          <label>Upload SSL Certificate</label>
+          <div class="section-subtext">Eigenes Zertifikat und Schlüssel manuell hochladen.</div>
+        </div>
+        <label class="switch">
+          <input #optFileSSL type="checkbox" id="sslUploadToggle" (click)="guiOptSyncFile()">
+          <span class="slider"></span>
+        </label>
+      </div>
+      <div #fileSSL class="form-group hidden" id="uploadField">
+        <input type="file" id="sslUpload" formControlName="cert" (change)="onCertUpload($event)" />
+	<input type="hidden" id="ssl" formControlName="SSL" />
+      </div>
+    </div>
+
+    <!-- Step 3 -->
+    <div #guiPhase3 class="step-content" id="step-3">
+      <label>Security</label>
+      <div class="section-subtext">Konfiguriere WAF, DDoS-Schutz und Bot-Management, um deine Anwendung umfassend abzusichern.</div>
+      <div class="form-group">
+        <label>Web Application Firewall</label>
+        <div class="section-subtext">Schütze deine Webanwendung durch intelligente Regelwerke gegen Angriffe.</div>
+        <div #optWAFs class="action-container">
+          <div #optWAF (click)="guiSelectBox(optWAFs,0)" class="option-box selected">Monitor</div>
+          <div #optWAF (click)="guiSelectBox(optWAFs,1)" class="option-box">Block</div>
+        </div>
+      </div>
+<!--      <div class="form-group">
+        <label>DDoS Mitigation</label>
+        <div class="section-subtext">Halte deine Dienste auch unter volumetrischen Angriffen verfügbar.</div>
+        <div class="action-container">
+          <div #optDDOS onclick="selectBox(this)" class="option-box">Basic</div>
+          <div #optDDOS onclick="selectBox(this)" class="option-box">Strict</div>
+        </div>
+      </div>
+-->     <div class="form-group">
+        <label>Bot Management</label>
+        <div class="section-subtext">Erkenne und blockiere schädliche Bots automatisch.</div>
+        <div #optBOTs class="action-container">
+          <div #optBOT (click)="guiSelectBox(optBOTs,0)" class="option-box selected">Allow</div>
+          <div #optBOT (click)="guiSelectBox(optBOTs,1)" class="option-box">Challenge</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 4 -->
+    <div #guiPhase4 class="step-content" id="step-4">
+      <label>Geo / IP Restrictions</label>
+      <div class="section-subtext">Beschränke den Zugriff auf bestimmte Länder oder IP-Bereiche, um nur autorisierte Nutzer zuzulassen.</div>
+      <div class="form-group">
+        <label>Country Restrictions</label>
+        <div class="section-subtext">Wähle Länder aus, die du zulassen oder blockieren möchtest.</div>
+        <select formControlName="GeoList" multiple id="countries" size="6">
+		<option *ngFor="let country of countryList.list" [ngValue]="country.name">{{country.name}}</option>
+<!--          <option>Afghanistan</option><option>Albania</option><option>Algeria</option>
+          <option>Andorra</option><option>Argentina</option><option>Armenia</option>
+-->        </select>
+      </div>
+      <div class="form-group">
+        <label>IP Restrictions</label>
+        <div class="section-subtext">Blockiere oder erlaube spezifische IP-Adressen oder CIDR-Blöcke.</div>
+        <textarea formControlName="IPList" id="ips" rows="4" placeholder="Enter IPs or CIDRs, one per line"></textarea>
+      </div>
+    </div>
+  
+    <!-- Step 5 -->
+    <div #guiPhase5 class="step-content" id="step-5">
+      <div class="final-message">
+        <h2>🎉 Congratulations!</h2>
+        <p>Deine Domain ist jetzt geschützt und einsatzbereit.</p>
+	<p class="final-message">{{ dnsResult }}</p>
+      </div>
+    </div>
+
+    <div class="nav-buttons">
+      <button #btnBack class="btn btn-back" id="btnBack" (click)="guiPrevStep()" disabled>Back</button>
+      <button #btnNext class="btn btn-next" id="btnNext" (click)="guiNextStep()">Next</button>
+    </div>
+  </div>
+
+<router-outlet />
