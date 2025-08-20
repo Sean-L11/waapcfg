@@ -123,49 +123,4 @@
     </div>
   </div>
 
-  <script>
-    let current = 1;
-    function showStep(step) {
-      current = step;
-      document.querySelectorAll('.step-content').forEach((el, idx)       document.querySelectorAll('.step-content').forEach((el, idx) => el.classList.toggle('active', idx === step - 1));
-      document.querySelectorAll('.step-btn').forEach((btn, idx) => {
-        btn.classList.toggle('active', idx === step - 1);
-        btn.classList.toggle('done', idx < step - 1);
-      });
-      document.getElementById('progressText').innerText = step <= 4 ? `Step ${step}/4` : 'Complete';
-      document.getElementById('progress').style.width = ((step - 1) / 4 * 100) + '%';
-      document.getElementById('btnBack').disabled = step === 1;
-      const nextBtn = document.getElementById('btnNext');
-      if (step === 5) nextBtn.textContent = 'Close'; else nextBtn.textContent = step === 4 ? 'Finish' : 'Next';
-    }
-    function nextStep() { if (current < 5) showStep(current + 1); else closeSetup(); }
-    function prevStep() { if (current > 1) showStep(current - 1); }
-
-
-    function syncUpload() {
-      const uploadChecked = document.getElementById('sslUploadToggle').checked;
-      if (uploadChecked) {
-        document.getElementById('sslAuto').checked = false;
-        document.getElementById('uploadField').classList.remove('hidden');
-      } else {
-        document.getElementById('uploadField').classList.add('hidden');
-      }
-    }
-    function syncEncrypt() {
-      const encryptChecked = document.getElementById('sslAuto').checked;
-      const uploadToggle = document.getElementById('sslUploadToggle');
-      if (encryptChecked) {
-        uploadToggle.checked = false;
-        document.getElementById('uploadField').classList.add('hidden');
-      }
-    }
-
-
-    function selectBox(el) { el.parentNode.querySelectorAll('.option-box').forEach(s => s.classList.remove('selected')); el.classList.add('selected'); }
-
-
-    function closeSetup() { alert('Setup closed.'); }
-    showStep(1);
-  </script>
-
 <router-outlet />
