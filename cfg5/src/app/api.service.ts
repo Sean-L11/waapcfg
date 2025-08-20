@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { v4 as uuidv4 } from 'uuid';
 import { ArrayResponseInterface } from '../lib/arrayresponse';
@@ -106,7 +106,17 @@ export class ApiService {
 			console.log('LB GET ',response);
 			let entryname = response.items[0]!.name; 
 			let listener = response.items[0].listener_name;
-			this.http.put(this.lbURI+'/'+entryname+'/certificates/'+certid+'?provider=gcp&region=global&default=true&listener='+listener+'&listener-port=443', null, { 'headers': this.headers}).subscribe({
+			let provider = response.items[0].provider;
+			let params = new HttpParams()
+			.set('provider', provider)
+			.set('region', 'global')
+			.set('default', 'true')
+			.set('listener', listener)
+			.set('listener-port', '443');
+			
+			console.log('LB params',params)
+			this.http.put(this.lbURI+'/'+entryname+'/certificates/'+certid, null, { 'headers': this.headers, 'params': params}).subscribe({
+//				      ?provider=gcp&region=global&default=true&listener='+listener+'&listener-port=443'
 				next: (response) => {
 					console.log('LB PUT ',response);
 				},

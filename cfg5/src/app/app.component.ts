@@ -1,4 +1,4 @@
-import { Component, ViewChild, ElementRef, AfterViewInit, inject } from '@angular/core';
+import { Component, ViewChild, ViewChildren, QueryList, ElementRef, AfterViewInit, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { NgFor } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -35,12 +35,21 @@ export class AppComponent implements AfterViewInit {
   @ViewChild('phaseButton3') guiPhaseButton3!: ElementRef;
   @ViewChild('phaseButton4') guiPhaseButton4!: ElementRef;
 
+  @ViewChild('optLESSL') guiOptLets!: ElementRef;
+  @ViewChild('optFileSSL') guiOptCert!: ElementRef;
+  @ViewChild('fileSSL') guiFileSSL!: ElementRef;
+
+  @ViewChildren('optBOT') guiOptBot!: QueryList<ElementRef>;
+  @ViewChildren('optWAF') guiOptWAF!: QueryList<ElementRef>;
+
+
   guiPhaseArray: ElementRef[] = [];
   guiPhaseButtonArray: ElementRef[] = [];
 
   title = 'cfg5';
   service: string = '';
   apikey: string = '';
+  private putconsole = true;
   private rawAcct: string | null = null;
   private rawApi: string | null = null;
   backend = inject(ApiService);
@@ -53,12 +62,12 @@ export class AppComponent implements AfterViewInit {
   websiteForm = new FormGroup({
     domain: new FormControl('your.domain.here', [Validators.required, Validators.pattern('.+')]),
     originIP: new FormControl('1.2.3.4', [Validators.required, Validators.pattern('.+')]),
-    SSL: new FormControl(''),
-    WAF: new FormControl(''),
-    BOT: new FormControl(''),
+    SSL: new FormControl('none'),
+    WAF: new FormControl('Monitor'),
+    BOT: new FormControl('Allow'),
 
     cert: new FormControl(''),
-    filterAction: new FormControl(''),
+    filterAction: new FormControl('ignore'),
     GeoList: new FormControl(this.geoSelect),
     IPList: new FormControl(''),
   })
@@ -110,49 +119,49 @@ export class AppComponent implements AfterViewInit {
 			}
 		},
 		error:(err) => {
-			console.log('dns error',err);
+			if (this.putconsole) console.log('dns error',err);
 		}
 	});
   }
 
   onCertUpload(event: Event){
 	const file = (event.target as HTMLInputElement).files![0];
-	console.log('file upload ', file);	
+	if (this.putconsole) console.log('file upload ', file);	
   	const reader = new FileReader();
-	console.log('reader ',reader);
+	if (this.putconsole) console.log('reader ',reader);
 	reader.onload = (e: any) => {
 		const fileContent: string = e.target.result as string;
-		console.log("file content: ",fileContent);
+		if (this.putconsole) console.log("file content: ",fileContent);
 		this.certificate.fromfile(fileContent);
 		this.certificate.id = this.backend.randomID();
-		console.log("cert check ",this.certificate);
+		if (this.putconsole) console.log("cert check ",this.certificate);
 	};
 	reader.onerror = (e: any) => {
-		console.log("file read error ",e);
+		if (this.putconsole) console.log("file read error ",e);
 	};
 	reader.readAsText(file);
   }
 
   getConfig() {
 	this.backend.setAuth(this.service, this.apikey);
-	console.log('auth', this.service + ":" + this.apikey);
+	if (this.putconsole) console.log('auth', this.service + ":" + this.apikey);
 	this.backend.getData().subscribe({
 	  next:(response) => {
-		  console.log('Fetched ',response);
+		  if (this.putconsole) console.log('Fetched ',response);
 		  this.securitypolicy = response;
 		  this.message = "Authentication Success...";
 		  this.websiteForm.enable();
 		  
 	  },
 	  error:(err) => {
-		  console.error('Fetch Error ',err)
+		  if (this.putconsole) console.error('Fetch Error ',err)
 		  this.message = "Authentication Failed...";
 		  this.websiteForm.disable();
 	  }
 	});
 	this.backend.getDNS().subscribe({
 		next:(response) => {
-			console.log('dns response',response);
+			if (this.putconsole) console.log('dns response',response);
 			for (let i = 0; i < response.dns_records.length; i++){
 				let r = response.dns_records[i];
 				if (r.name.substring(0,9) == 'fire-prod') {
@@ -161,14 +170,12 @@ export class AppComponent implements AfterViewInit {
 			}
 		},
 		error:(err) => {
-			console.log('dns error',err);
+			if (this.putconsole) console.log('dns error',err);
 		}
 	});
   }
 
   submitConfig(submit = true) {
-	let putconsole = true;
-	  // set origin
 	let ip = 'default.ip';
 	let fqdn = 'Link11 WAAP';
 	let enableSSL = false;
@@ -177,14 +184,14 @@ export class AppComponent implements AfterViewInit {
 	let enableACL = true;
 	let aclProfile = '__acldefault__';
 	let certid = 'placeholder';;
-	if (putconsole) {console.log('Form Data ',this.websiteForm);}
+	if (this.putconsole) {console.log('Form Data ',this.websiteForm);}
 	if (this.websiteForm.get('originIP')){
 		ip = this.websiteForm.get('originIP')!.value+"";
 	}
 	if (this.websiteForm.get('domain')){
 		fqdn = this.websiteForm.get('domain')!.value+"";
 	}
-	if (putconsole) {console.log('SSL ', this.websiteForm.get('SSL')!.value);}
+	if (this.putconsole) {console.log('SSL ', this.websiteForm.get('SSL')!.value);}
 	if (this.websiteForm.get('SSL')) { 
 		switch (this.websiteForm.get('SSL')!.value){
 			case "letsencrypt":
@@ -210,17 +217,17 @@ export class AppComponent implements AfterViewInit {
 	origin.description = "Backend Service for "+fqdn;
 
 
-	if (putconsole) {console.log('origin ',origin);}
+	if (this.putconsole) {console.log('origin ',origin);}
 
 	if (submit) {this.backend.setAuth(this.service, this.apikey);}
 
 	if (submit) {
 		this.backend.postOrigin(origin).subscribe({
 		  next:(response) => {
-			  console.log('origin Response ',response);
+			  if (this.putconsole) console.log('origin Response ',response);
 		  },
 		  error:(err) => {
-			  console.error('origin Error ',err)
+			  if (this.putconsole) console.error('origin Error ',err)
 		  }
 		});
 	}
@@ -244,7 +251,7 @@ export class AppComponent implements AfterViewInit {
 		restrictionFilter.name = restrictionFilter.description + " ("+fqdn+")"
 		//for GEO
 		if (this.websiteForm.get("GeoList")!.value && this.websiteForm.get("GeoList")!.value!.length > 0) {
-			console.log("Geo: ",this.websiteForm.get("GeoList")!.value);
+			if (this.putconsole) console.log("Geo: ",this.websiteForm.get("GeoList")!.value);
 			for (const country of this.websiteForm.get("GeoList")!.value!) {
 				restrictionFilter.rule.entries.push([
 					"country", 
@@ -257,7 +264,7 @@ export class AppComponent implements AfterViewInit {
 		//for each IP
 		if (this.websiteForm.get("IPList")!.value && this.websiteForm.get("IPList")!.value!.length > 0) {
 			let ipArray: string[] = this.websiteForm.get("IPList")!.value!.split('\n');
-			console.log("IP", ipArray);
+			if (this.putconsole) console.log("IP", ipArray);
 		        for (const addr of ipArray) {	
 				restrictionFilter.rule.entries.push([
 					"ip", 
@@ -286,14 +293,14 @@ export class AppComponent implements AfterViewInit {
 				break;
 		}
 
-		if (putconsole) {console.log("global filter:", restrictionFilter);}
+		if (this.putconsole) {console.log("global filter:", restrictionFilter);}
 		if (submit) {
 			this.backend.postFilter(restrictionFilter).subscribe({
 				next:(response) => {
-					console.log("filter success ",response);
+					if (this.putconsole) console.log("filter success ",response);
 				},
 				error:(err) => {
-					console.log("filter error ",err);
+					if (this.putconsole) console.log("filter error ",err);
 				}
 			})
 		}
@@ -327,14 +334,14 @@ export class AppComponent implements AfterViewInit {
 		}
 	}
 	this.securitypolicy.name = fqdn+" Security Policy";
-	if (putconsole) {console.log('security policy ',this.securitypolicy);}
+	if (this.putconsole) {console.log('security policy ',this.securitypolicy);}
 	if (submit) {
 		this.backend.postSecurityPolicy(this.securitypolicy).subscribe({
 	 	  next:(response) => {
-			console.log('policy response ',response);
+			if (this.putconsole) console.log('policy response ',response);
 		  },
 		  error:(err) => {
-			console.log('policy error ',err);
+			if (this.putconsole) console.log('policy error ',err);
 		  }
 		});
 	}
@@ -346,14 +353,14 @@ export class AppComponent implements AfterViewInit {
 	servergroup.security_policy = this.securitypolicy.id;
 	
        	//apply ssl cert or placeholder
-	if (putconsole) {console.log("server group ",servergroup);}
+	if (this.putconsole) {console.log("server group ",servergroup);}
 	if (submit) {
 		this.backend.postServer(servergroup).subscribe({
 		  next:(response) => {
-			console.log('server response ',response);
+			if (this.putconsole) console.log('server response ',response);
 		  },
 		  error:(err) => {
-			console.log('server error ',err);
+			if (this.putconsole) console.log('server error ',err);
 		  }
 		});
 	}
@@ -363,11 +370,11 @@ export class AppComponent implements AfterViewInit {
 	// send le cert 
 			this.backend.postLECertificate(certid, fqdn).subscribe({
 				next: (response) => {
-					console.log('cert response ',response);
+					if (this.putconsole) console.log('cert response ',response);
 					this.backend.attachCertificate(certid, servergroup);
 				},
 				error: (err) => {
-					console.log('cert error',err);
+					if (this.putconsole) console.log('cert error',err);
 				}	
 			});
 		} else {
@@ -375,11 +382,11 @@ export class AppComponent implements AfterViewInit {
 			certid = this.certificate.id;
 			this.backend.postCertificate(this.certificate, fqdn).subscribe({
 				next: (response) => {
-					console.log('cert response ',response);
+					if (this.putconsole) console.log('cert response ',response);
 					this.backend.attachCertificate(certid, servergroup);	
 				},
 				error: (err) => {
-					console.log('cert error',err);
+					if (this.putconsole) console.log('cert error',err);
 				}	
 			});
 		}
@@ -388,10 +395,10 @@ export class AppComponent implements AfterViewInit {
 	if (submit) {
 		this.backend.commit(this.service).subscribe({
 		  next:(response) => {
-			console.log('commit response ', response);
+			if (this.putconsole) console.log('commit response ', response);
 		  },
 		  error:(err) => {
-			console.log('commit error ',err);
+			if (this.putconsole) console.log('commit error ',err);
 		  }	  
 		});
 	}
@@ -399,7 +406,7 @@ export class AppComponent implements AfterViewInit {
 	if (submit) {
 		this.backend.getDNS().subscribe({
 		  next:(response) => {
-			console.log('dns response',response);
+			if (this.putconsole) console.log('dns response',response);
 			for (let i = 0; i < response.dns_records.length; i++){
 				let r = response.dns_records[i];
 				if (r.name.substring(0,9) == 'fire-prod') {
@@ -408,11 +415,25 @@ export class AppComponent implements AfterViewInit {
 			}
 		  },
 		  error:(err) => {
-		  	console.log('dns error',err);
+		  	if (this.putconsole) console.log('dns error',err);
 		  }
         	});	
 	}
   }  
+
+  saveOptions() {
+	this.guiOptBot.forEach((option) => {
+		if (option.nativeElement.classList.contains('selected')) {
+			this.websiteForm.get("BOT")!.setValue(option.nativeElement.innerHTML);
+		}		  
+	});
+	this.guiOptWAF.forEach((option) => {
+		if (option.nativeElement.classList.contains('selected')) {
+			this.websiteForm.get("WAF")!.setValue(option.nativeElement.innerHTML);
+		}		  
+	});
+  }
+
   guiCloseSetup() {
 
   }
@@ -425,18 +446,59 @@ export class AppComponent implements AfterViewInit {
 			this.guiPhaseButtonArray[p].nativeElement.classList.toggle('active' , p === (step -1));
 			this.guiPhaseButtonArray[p].nativeElement.classList.toggle('done', p < (step-1));
 		}
-		console.log(p,(p===(step-1)));
 	}
-	console.log(step,this.guiPhaseButtonArray);
 	this.guiprgTxt.nativeElement.innerText = step <= 4 ? 'Step '+step+'/4' : 'Complete';
 	this.guiprgBar.nativeElement.style.width = ((step - 1) / 4 *100)+'%';
 	this.guibtnBack.nativeElement.disabled = step === 1;
 	let nb = this.guibtnNext.nativeElement;
-	if (step == 5) nb.textContent = 'Close'; else nb.textContent = step === 4 ? 'Finish' : 'Next';
-	console.log(step, this.websiteForm);
+	switch (step) {
+	  case 5:
+		nb.textContent = 'Close';
+	  	this.submitConfig(true);
+		break;
+	  case 4:
+		nb.textContent = 'Finish';
+	        break;
+	  default:
+		nb.textContent = 'Next';
+	  	
+	}
+	if (this.putconsole) console.log(step, this.websiteForm.value);
   }
 
   guiNextStep() { if (this.guiPhase < 5) this.guiShowStep(this.guiPhase + 1); else this.guiCloseSetup();}
   guiPrevStep() { if (this.guiPhase > 1) this.guiShowStep(this.guiPhase - 1);}
 
+  guiOptSyncLets() {
+	this.guiFileSSL.nativeElement.classList.add('hidden');
+	if (this.guiOptLets.nativeElement.checked) {
+		this.websiteForm.get('SSL')!.setValue('letsencrypt');
+		this.guiOptCert.nativeElement.checked = false;
+	} else {
+		this.websiteForm.get('SSL')!.setValue('none');
+	}
+ }
+
+  guiOptSyncFile() {
+	if (this.guiOptCert.nativeElement.checked) {
+		this.websiteForm.get('SSL')!.setValue('upload');
+		this.guiFileSSL.nativeElement.classList.remove('hidden');
+		this.guiOptLets.nativeElement.checked = false;
+	} else {
+		this.websiteForm.get('SSL')!.setValue('none');
+		this.guiFileSSL.nativeElement.classList.add('hidden');
+	}
+
+  }
+  guiSelectBox(oplist: any, selected: number = 0) {
+	  
+	  oplist.childNodes.forEach((node: HTMLElement) => {
+		  node.classList.remove('selected');
+	  });
+	  
+	  const target = oplist.childNodes[selected];
+	  target.classList.add('selected');
+	  this.saveOptions();
+
+  }
 }
