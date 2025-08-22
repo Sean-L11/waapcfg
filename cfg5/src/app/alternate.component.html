@@ -16,13 +16,13 @@
     <!-- Step 1 -->
     <div #guiPhase1 class="step-content active" id="step-1">
       <label for="domain">Website</label>
-      <div class="section-subtext">Gib hier deine Hauptdomain ein, z. B. <em>www.deinefirma.com</em>, die wir schützen. Benutzer rufen künftig diese Adresse auf.</div>
+      <div class="section-subtext">Enter your primary domain, e.g. <em>www.yourcompany.com</em>, which we will protect.  Users will use this address to access your application.</div>
       <div class="form-group">
 <!--        <input type="text" id="domain" placeholder="your.domain.here" />
 -->	<input formControlName="domain" (blur)="onDomainBlur()">
       </div>
       <label for="originIP">Backend Server</label>
-      <div class="section-subtext">Backend description here</div>
+      <div class="section-subtext">Address for backend communication. Typically your serrver IP</div>
       <div class="form_group">	
       	<input formControlName="originIP">
       </div>
@@ -31,11 +31,11 @@
     <!-- Step 2 -->
     <div #guiPhase2 class="step-content" id="step-2">
       <label>SSL Configuration</label>
-      <div class="section-subtext">Verbinde dein Backend und wähle aus, wie das SSL-Zertifikat erstellt oder hochgeladen wird, um deine Inhalte zu verschlüsseln.</div>
+      <div class="section-subtext">Choose to create or upload a SSL certificate to encrypt your content.</div>
       <div class="form-group switch-container">
         <div>
           <label>Let’s Encrypt</label>
-          <div class="section-subtext">Automatisch ein kostenloses SSL-Zertifikat erstellen und verlängern lassen.</div>
+          <div class="section-subtext">Automatically create a renew a free SSL certificate.</div>
         </div>
         <label class="switch">
           <input #optLESSL type="checkbox" id="sslAuto" (click)="guiOptSyncLets()" checked>
@@ -45,7 +45,7 @@
       <div class="form-group switch-container">
         <div>
           <label>Upload SSL Certificate</label>
-          <div class="section-subtext">Eigenes Zertifikat und Schlüssel manuell hochladen.</div>
+          <div class="section-subtext">Upload your own certificate and key.</div>
         </div>
         <label class="switch">
           <input #optFileSSL type="checkbox" id="sslUploadToggle" (click)="guiOptSyncFile()">
@@ -61,10 +61,10 @@
     <!-- Step 3 -->
     <div #guiPhase3 class="step-content" id="step-3">
       <label>Security</label>
-      <div class="section-subtext">Konfiguriere WAF, DDoS-Schutz und Bot-Management, um deine Anwendung umfassend abzusichern.</div>
+      <div class="section-subtext">Configure WAF and Bot management to somprehesively secure your application.</div>
       <div class="form-group">
         <label>Web Application Firewall</label>
-        <div class="section-subtext">Schütze deine Webanwendung durch intelligente Regelwerke gegen Angriffe.</div>
+        <div class="section-subtext">Protect your web application against attacks with intelligent rules.</div>
         <div #optWAFs class="action-container">
           <div #optWAF (click)="guiSelectBox(optWAFs,0)" class="option-box selected">Monitor</div>
           <div #optWAF (click)="guiSelectBox(optWAFs,1)" class="option-box">Block</div>
@@ -80,7 +80,7 @@
       </div>
 -->     <div class="form-group">
         <label>Bot Management</label>
-        <div class="section-subtext">Erkenne und blockiere schädliche Bots automatisch.</div>
+        <div class="section-subtext">Automatically detect and block malicious bots.</div>
         <div #optBOTs class="action-container">
           <div #optBOT (click)="guiSelectBox(optBOTs,0)" class="option-box selected">Allow</div>
           <div #optBOT (click)="guiSelectBox(optBOTs,1)" class="option-box">Challenge</div>
@@ -91,10 +91,10 @@
     <!-- Step 4 -->
     <div #guiPhase4 class="step-content" id="step-4">
       <label>Geo / IP Restrictions</label>
-      <div class="section-subtext">Beschränke den Zugriff auf bestimmte Länder oder IP-Bereiche, um nur autorisierte Nutzer zuzulassen.</div>
+      <div class="section-subtext">Restrict access to specific countries or IP ranges to allow only authorized users.</div>
       <div class="form-group">
         <label>Country Restrictions</label>
-        <div class="section-subtext">Wähle Länder aus, die du zulassen oder blockieren möchtest.</div>
+	<div class="section-subtext">Select countries you want to block.</div>
         <select formControlName="GeoList" multiple id="countries" size="6">
 		<option *ngFor="let country of countryList.list" [ngValue]="country.name">{{country.name}}</option>
 <!--          <option>Afghanistan</option><option>Albania</option><option>Algeria</option>
@@ -103,7 +103,7 @@
       </div>
       <div class="form-group">
         <label>IP Restrictions</label>
-        <div class="section-subtext">Blockiere oder erlaube spezifische IP-Adressen oder CIDR-Blöcke.</div>
+        <div class="section-subtext">Block specific IP addresses or CIDR blocks.</div>
         <textarea formControlName="IPList" id="ips" rows="4" placeholder="Enter IPs or CIDRs, one per line"></textarea>
       </div>
     </div>
