@@ -49,7 +49,7 @@ export class AppComponent implements AfterViewInit {
   title = 'cfg5';
   service: string = '';
   apikey: string = '';
-  private putconsole = true;
+  private putconsole = false;
   private rawAcct: string | null = null;
   private rawApi: string | null = null;
   backend = inject(ApiService);
@@ -112,6 +112,7 @@ export class AppComponent implements AfterViewInit {
 
   onDomainBlur(){
 	const domain = this.websiteForm.get('domain')!.value;
+	this.websiteForm.get('domain')!.setValue(this.url2host(domain!));
 	this.backend.resolveAddress(this.url2host(domain!)).subscribe({
 		next:(response) => {
 			if (response.Answer) {
@@ -243,6 +244,9 @@ export class AppComponent implements AfterViewInit {
 		}
 	}
 //Global filter restrictions for Geo / IP
+	if (this.websiteForm.get("GeoList")!.value && this.websiteForm.get("GeoList")!.value!.length > 0) this.websiteForm.get("filterAction")!.setValue("Block");
+	if (this.websiteForm.get("IPList")!.value && this.websiteForm.get("IPList")!.value!.length > 0) this.websiteForm.get("filterAction")!.setValue("Block");
+	
 	if (this.websiteForm.get("filterAction")!.value != "ignore") {	
 		let restrictionFilter = new Filter();
 		restrictionFilter.id = this.backend.randomID();
