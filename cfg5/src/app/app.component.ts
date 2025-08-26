@@ -62,7 +62,7 @@ export class AppComponent implements AfterViewInit {
   websiteForm = new FormGroup({
     domain: new FormControl('your.domain.here', [Validators.required, Validators.pattern('.+')]),
     originIP: new FormControl('1.2.3.4', [Validators.required, Validators.pattern('.+')]),
-    SSL: new FormControl('none'),
+    SSL: new FormControl('letsencrypt'),
     WAF: new FormControl('Monitor'),
     BOT: new FormControl('Allow'),
 
